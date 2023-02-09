@@ -4,11 +4,12 @@ from PySide6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit,
                                QPushButton, QVBoxLayout, QWidget)
 
 
-class TagFaceForm(QWidget):
+class Tagging(QWidget):
+
     taggerHandler = Signal(str)
 
     def __init__(self, parent=None):
-        super(TagFaceForm, self).__init__(parent)
+        super(Tagging, self).__init__(parent)
         self.buttonCancel = None
         self.buttonOK = None
         self.buttonsLayout = None
@@ -61,11 +62,11 @@ class TagFaceForm(QWidget):
 
     def onClickOK(self):
         self.taggerHandler.emit(self.tagEdit.text())
+        self.close()
 
     def onClickCancel(self):
-        self.hide()
+        self.close()
 
-    def onGalleryHandlerStart(self, face):
-        print(face)
-        self.tagEdit.setText(face)
-        # self.raise_()
+    def onGalleryHandlerMessage(self, face):
+        self.photoLabel.setPixmap(face["pixmap"])
+        self.tagEdit.setText(face["file"])

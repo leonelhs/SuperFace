@@ -1,10 +1,12 @@
+import contextlib
 import os
+from sqlite3 import connect
 
 from PIL import Image
 # import pillow_avif
 
 from AI.face_tagger import FaceTagger
-from db_gallery import DbGallery
+from Storage import Storage
 
 import pickle
 
@@ -48,7 +50,7 @@ class Faces:
 
     def testFaces(self):
         self.faceTagger = FaceTagger()
-        self.dbGallery = DbGallery(path)
+        self.dbGallery = Storage(path)
         self.dbGallery.open()
         image_list = self.dbGallery.fetchAllFaces()
         print(image_list[0])
@@ -61,18 +63,39 @@ class Faces:
         blob = pickle.dumps(encodings, protocol=5)
 
         self.faceTagger = FaceTagger()
-        self.dbGallery = DbGallery(path)
+        self.dbGallery = Storage(path)
         self.dbGallery.open()
-        self.dbGallery.insertBlob([("blob", blob)])
+        self.dbGallery.insertFaces([("blob", blob)])
         self.dbGallery.close()
 
     def test_blobs(self):
-        self.dbGallery = DbGallery(path)
+        self.dbGallery = Storage(path)
         self.dbGallery.open()
         result = self.dbGallery.test_fetch("SELECT * FROM faces WHERE file = 'blob'")
         new_blob = pickle.loads(result[0][3])
         print(new_blob)
 
 
-faces = Faces()
-faces.test_blobs()
+def test_base():
+    db_name = "test.db"
+    with contextlib.closing(connect(db_name)) as con:
+        with con as cur:
+            cur.executescript("""
+            CREATE TABLE IF NOT EXISTS faces(
+                gallery_id INTEGER NOT NULL,
+                file TEXT NOT NULL UNIQUE,
+                match INTEGER, 
+                tags TEXT, 
+                thumbnail BLOB, 
+                encodings BLOB, 
+                landmarks BLOB, 
+                PRIMARY KEY (file));
+
+            CREATE TABLE IF NOT EXISTS galleries(
+                path TEXT NOT NULL UNIQUE , 
+                opened DATETIME, 
+                PRIMARY KEY (path));
+            """)
+
+
+test_base()

@@ -1,21 +1,20 @@
 from PySide6.QtCore import QRect
-from PySide6.QtGui import Qt, QPixmap, QImage
+from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import QScrollArea, QWidget, QGridLayout
 
-from photo_widget import PhotoWidget
+from UI.widgets.Photo import Photo
 
 
 def pixmap_from_file(path):
     return QPixmap.fromImage(QImage(path))
 
 
-class PhotoGrid:
-    def __init__(self, splitter):
+class ThumbnailGrid:
+    def __init__(self, container):
         self.click = None
-        self.scroller = QScrollArea(splitter)
-        # self.scroller.setStyleSheet(u"background-color: rgb(255, 255, 255)")
+        self.doubleClick = None
+        self.scroller = QScrollArea(container)
         self.scroller.setWidgetResizable(True)
-
         self.scroll_contents = QWidget()
         self.scroll_contents.setGeometry(QRect(0, 0, 383, 479))
 
@@ -23,7 +22,10 @@ class PhotoGrid:
         self.layout.setContentsMargins(0, 0, 0, 0)
 
         self.scroller.setWidget(self.scroll_contents)
-        splitter.addWidget(self.scroller)
+        container.addWidget(self.scroller)
+
+    def setStyle(self, style=""):
+        self.scroller.setStyleSheet(u"background-color: rgb(255, 255, 255)")
 
     def appendThumbnail(self, face, position=(0, 0)):
         small_photo = self.newPhoto(face)
@@ -41,12 +43,16 @@ class PhotoGrid:
     def setClickEvent(self, callback):
         self.click = callback
 
+    def setDoubleClickEvent(self, callback):
+        self.doubleClick = callback
+
     def getWidth(self):
         return self.scroller.size().width()
 
     def newPhoto(self, face):
-        photo_layout = PhotoWidget(face)
+        photo_layout = Photo(face)
         photo_layout.setClickEvent(self.click)
+        photo_layout.setDoubleClickEvent(self.doubleClick)
         return photo_layout
 
     def clearPhotos(self):

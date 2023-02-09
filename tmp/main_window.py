@@ -5,7 +5,7 @@ from PySide6.QtGui import (QImage, QPixmap)
 from PySide6.QtWidgets import (QHBoxLayout, QLabel, QMenu, QMenuBar, QScrollArea, QSplitter,
                                QStatusBar, QToolBar, QVBoxLayout, QWidget, QFileDialog, QMainWindow, QGridLayout)
 
-from actions import new_action
+from Actions import new_action
 from AI.face_detect import faces_detect
 from AI.illuminate.lowlight import lowlight
 from AI.super_resolution import super_resolution
@@ -75,12 +75,12 @@ class MainWindow(QMainWindow):
         self.layout = None
         self.central_widget = None
 
-        self.image_open = new_action(self, "./assets/document-open.svg")
-        self.folder_open = new_action(self, "./assets/document-open.svg")
-        self.super_resolution = new_action(self, "./assets/edit-image-face-show.svg")
-        self.zero_background = new_action(self, "./assets/edit-image-face-show.svg")
-        self.low_light = new_action(self, "./assets/edit-image-face-show.svg")
-        self.face_marks = new_action(self, "./assets/edit-image-face-show.svg")
+        self.image_open = new_action(self, "../assets/document-open.svg")
+        self.folder_open = new_action(self, "../assets/document-open.svg")
+        self.super_resolution = new_action(self, "../assets/edit-image-face-show.svg")
+        self.zero_background = new_action(self, "../assets/edit-image-face-show.svg")
+        self.low_light = new_action(self, "../assets/edit-image-face-show.svg")
+        self.face_marks = new_action(self, "../assets/edit-image-face-show.svg")
 
         self.zero = ZeroBackground()
         self.setup_ui(self)

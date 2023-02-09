@@ -1,6 +1,8 @@
 venv
 test
 fast
+superfast
 images
+.gallery.db
 .thumbnails.db
 __pycache__

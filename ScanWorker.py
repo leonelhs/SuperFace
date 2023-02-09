@@ -13,7 +13,7 @@ class WorkerSignals(QObject):
     progress = Signal(int)
 
 
-class GalleryWorker(QRunnable):
+class ScanWorker(QRunnable):
     """
     Worker thread
 
@@ -28,7 +28,7 @@ class GalleryWorker(QRunnable):
     """
 
     def __init__(self, fn, *args, **kwargs):
-        super(GalleryWorker, self).__init__()
+        super(ScanWorker, self).__init__()
 
         self.fn = fn
         self.args = args

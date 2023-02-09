@@ -7,11 +7,11 @@ from PySide6.QtWidgets import (QHBoxLayout, QMenu, QMenuBar, QSplitter,
                                QStatusBar, QToolBar, QWidget, QFileDialog, QMainWindow, QProgressBar, QVBoxLayout)
 
 import utils
-from actions import new_action
-from db_gallery import DbGallery
-from gallery_worker import GalleryWorker
-from photo_grid import PhotoGrid
-from tag_face_form import TagFaceForm
+from Actions import new_action
+from Storage import Storage
+from ScanWorker import ScanWorker
+from thumbnail_grid import ThumbnailGrid
+from UI.Tagging import Tagging
 
 
 def tr(label):
@@ -40,7 +40,7 @@ def serialize(data):
 
 class MainWindow(QMainWindow):
 
-    galleryHandler = Signal(str)
+    galleryHandler = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -67,20 +67,20 @@ class MainWindow(QMainWindow):
         self.layout = None
         self.central_widget = None
 
-        self.actionGalleryOpen = new_action(self, "./assets/document-open.svg")
-        self.actionGalleryRecents = new_action(self, "./assets/document-open.svg")
+        self.actionGalleryOpen = new_action(self, "../assets/document-open.svg")
+        self.actionGalleryRecents = new_action(self, "../assets/document-open.svg")
 
-        self.actionTagFaces = new_action(self, "./assets/edit-image-face-show.svg")
-        self.actionMarksFace = new_action(self, "./assets/edit-image-face-show.svg")
+        self.actionTagFaces = new_action(self, "../assets/edit-image-face-show.svg")
+        self.actionMarksFace = new_action(self, "../assets/edit-image-face-show.svg")
 
-        self.actionGalleryTags = new_action(self, "./assets/document-open.svg")
-        self.actionNewGallery = new_action(self, "./assets/document-open.svg")
-        self.actionRescanGallery = new_action(self, "./assets/document-open.svg")
+        self.actionGalleryTags = new_action(self, "../assets/document-open.svg")
+        self.actionNewGallery = new_action(self, "../assets/document-open.svg")
+        self.actionRescanGallery = new_action(self, "../assets/document-open.svg")
 
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
 
-        self.tagFaceForm = TagFaceForm()
+        self.tagFaceForm = Tagging()
 
         self.setupUI(self)
 
@@ -91,10 +91,11 @@ class MainWindow(QMainWindow):
         self.splitter = QSplitter(self.central_widget)
         self.splitter.setOrientation(Qt.Horizontal)
 
-        self.passiveGrid = PhotoGrid(self.splitter)
-        self.activeGrid = PhotoGrid(self.splitter)
+        self.passiveGrid = ThumbnailGrid(self.splitter)
+        self.activeGrid = ThumbnailGrid(self.splitter)
 
         self.passiveGrid.setClickEvent(self.onPassivePhotoClicked)
+        self.passiveGrid.setDoubleClickEvent(self.onPassivePhotoDoubleClicked)
         self.activeGrid.setClickEvent(self.onActivePhotoClicked)
 
         self.layout.addWidget(self.splitter)
@@ -127,8 +128,8 @@ class MainWindow(QMainWindow):
 
         QMetaObject.connectSlotsByName(main_window)
 
-        self.galleryHandler.connect(self.tagFaceForm.onGalleryHandlerStart)
-        self.tagFaceForm.taggerHandler.connect(self.onTaggerHandlerDone)
+        self.galleryHandler.connect(self.tagFaceForm.onGalleryHandlerMessage)
+        self.tagFaceForm.taggerHandler.connect(self.onTaggerHandlerMessage)
 
     def createMenus(self):
         # Menus
@@ -188,11 +189,16 @@ class MainWindow(QMainWindow):
 
     def onPassivePhotoClicked(self, event, face):
         self.activeGrid.clearPhotos()
-        self.activeGrid.appendPhoto(face)
+        # self.activeGrid.appendPhoto(face)
         self.logger("Working image at: ", face["file"])
 
+    def onPassivePhotoDoubleClicked(self, event, face):
+        print("type(face)")
+        print(type(face))
+        self.galleryHandler.emit(face)
+        self.tagFaceForm.show()
+
     def onActivePhotoClicked(self, event, face):
-        self.galleryHandler.emit("leonel")
         self.active_tag = face["match"]
         self.logger("Active tag: ", self.active_tag)
 
@@ -240,7 +246,7 @@ class MainWindow(QMainWindow):
 
     def openFolderGallery(self):
         gallery_path = QFileDialog.getExistingDirectory(self, 'Open gallery')
-        self.dbGallery = DbGallery(gallery_path)
+        self.dbGallery = Storage(gallery_path)
         self.scanGalleryFaces(gallery_path)
         self.logger("Working gallery at: ", gallery_path)
 
@@ -262,7 +268,7 @@ class MainWindow(QMainWindow):
         # self.raise_()
 
     def startEncodingThread(self, gallery_path):
-        worker = GalleryWorker(self.executeEncodings, gallery_path)
+        worker = ScanWorker(self.executeEncodings, gallery_path)
         worker.signals.result.connect(self.encodingDone)
         worker.signals.finished.connect(self.scanningComplete)
         worker.signals.progress.connect(self.trackScanningProgress)
@@ -284,7 +290,7 @@ class MainWindow(QMainWindow):
             data.append((file, thumbnail, encodings, landmarks))
             progress_callback.emit(len(data) * 100 / count_files)
         self.dbGallery.open()
-        self.dbGallery.insertBlob(data)
+        self.dbGallery.insertFaces(data)
         self.dbGallery.close()
         return gallery_path
 
@@ -300,8 +306,8 @@ class MainWindow(QMainWindow):
         self.progressBar.hide()
         self.logger("Scanning complete ", "Done")
 
-    def onTaggerHandlerDone(self, message):
+    def onTaggerHandlerMessage(self, message):
         print("from frame")
-        print(message)
+        self.logger("Tag name", message)
         # self.raise_()
 

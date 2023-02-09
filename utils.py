@@ -42,7 +42,7 @@ def scanFolderImages(folder_path):
         image_file = os.path.join(folder_path, file)
         if os.path.isfile(image_file):
             if filetype.is_image(image_file):
-                image_list.append(image_file)
+                image_list.append(file)
     return image_list
 
 
