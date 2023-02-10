@@ -81,16 +81,6 @@ def test_base():
     with contextlib.closing(connect(db_name)) as con:
         with con as cur:
             cur.executescript("""
-            CREATE TABLE IF NOT EXISTS faces(
-                gallery_id INTEGER NOT NULL,
-                file TEXT NOT NULL UNIQUE,
-                match INTEGER, 
-                tags TEXT, 
-                thumbnail BLOB, 
-                encodings BLOB, 
-                landmarks BLOB, 
-                PRIMARY KEY (file));
-
             CREATE TABLE IF NOT EXISTS galleries(
                 path TEXT NOT NULL UNIQUE , 
                 opened DATETIME, 

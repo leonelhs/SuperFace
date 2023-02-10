@@ -1,12 +1,8 @@
 import contextlib
-import sqlite3
 from datetime import datetime
 from sqlite3 import connect as connect
+
 from Face import Face
-
-
-def fetch_tags():
-    query = "SELECT * FROM faces WHERE match IS NOT NULL AND TRIM(match,' ') != '' GROUP BY match"
 
 
 class DbConnection(contextlib.closing):
@@ -34,7 +30,7 @@ class Storage:
                     self._gallery_id = cur.execute(query, (self._gallery_path,)).fetchone()[0]
                     if self._gallery_path:
                         return True
-                except sqlite3.Error:
+                except:
                     pass
                     return False
 
@@ -57,7 +53,10 @@ class Storage:
     def fetchAllFaces(self):
         with DbConnection(self._db_name) as con:
             with con as cur:
-                query = "SELECT * FROM faces WHERE gallery_id = ?"
+                query = "SELECT path||'/'||face_id, " \
+                        "faces.gallery_id, face_id, match, tags, thumbnail, encodings, landmarks " \
+                        "FROM faces INNER JOIN galleries ON galleries.gallery_id = faces.gallery_id " \
+                        "AND faces.gallery_id = ?"
                 result = cur.execute(query, (self._gallery_id,)).fetchall()
                 return [Face(*row) for row in result]
 
@@ -70,7 +69,7 @@ class Storage:
     def updateAll(self, values):
         with DbConnection(self._db_name) as con:
             with con as cur:
-                query = "UPDATE faces SET match = ?, tags = ? WHERE face_id = ?"
+                query = "UPDATE faces SET tags = ? WHERE gallery_id = ? AND face_id = ?"
                 cur.executemany(query, values)
                 con.commit()
 

@@ -17,12 +17,16 @@ class Photo(QVBoxLayout):
         self.contextLandmarksEvent = None
 
         self.face = face
+        self.tags = "Unknown"
+        if face.tags:
+            self.tags = face.tags
+
         self.frame = QLabel()
         self.frame.setAlignment(Qt.AlignCenter)
         self.frame.setPixmap(face.pixmap)
         self.addWidget(self.frame)
         self.label = QLabel()
-        self.label.setText("Unknown")
+        self.label.setText(self.tags)
         self.label.setAlignment(Qt.AlignCenter)
         self.addWidget(self.label)
         self.frame.mousePressEvent = self.clickEvent
@@ -49,7 +53,7 @@ class Photo(QVBoxLayout):
         return self.face.pixmap
 
     def getFilePath(self):
-        return self.face.gallery_id
+        return self.face.image_path
 
     def getFileName(self):
         return self.face.face_id

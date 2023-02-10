@@ -5,11 +5,11 @@ from PySide6.QtWidgets import (QHBoxLayout, QMenuBar,
                                QVBoxLayout, QWidget, QMainWindow, QMenu, QFileDialog)
 
 import utils
-from UI.widgets.PhotoGrid import PhotoGrid
 from Actions import new_action, ActionRecents
 from Storage import Storage
-from ScanWorker import ScanWorker
+from SuperScanner import SuperScanner
 from UI.Tagging import Tagging
+from UI.widgets.PhotoGrid import PhotoGrid
 
 
 def get_line(array):
@@ -25,8 +25,17 @@ def tr(label):
     return QCoreApplication.translate("MainWindow", label, None)
 
 
-class MainWindow(QMainWindow):
+def drawFaceLandmarks(face):
+    painter = QPainter(face.pixmap)
+    painter.setPen(QColor(255, 255, 0))
+    for marks in face.landmarks:
+        for positions in marks:
+            for position in get_line(marks[positions]):
+                if len(position) > 1:
+                    painter.drawLine(*position[0], *position[1])
 
+
+class MainWindow(QMainWindow, SuperScanner):
     galleryHandler = Signal(object)
 
     def __init__(self):
@@ -137,14 +146,9 @@ class MainWindow(QMainWindow):
         self.menuGallery.addAction(self.actionNewGallery)
         self.menuGallery.addAction(self.actionRescanGallery)
 
-        self.actionGalleryOpen.triggered.connect(self.openFolderGallery)
-
-        self.actionTagFaces.triggered.connect(self.tagFacesByName)
-        self.actionMarksFace.triggered.connect(self.drawFaceLandmarks)
+        self.actionGalleryOpen.triggered.connect(self.openGalleryFolder)
         # slots gallery
-        self.actionGalleryTags.triggered.connect(self.list_gallery_tags)
         self.actionNewGallery.triggered.connect(self.new_tagged_gallery)
-        self.actionRescanGallery.triggered.connect(self.rescanGalleryFaces)
 
     def openRecentGallery(self, path):
         if self.storage.open(path):
@@ -175,24 +179,11 @@ class MainWindow(QMainWindow):
         self.tagFaceForm.show()
 
     def onContextMenuLandmarksClicked(self, event, face):
+        image = utils.imageOpen(face.image_path)
+        face.pixmap = image.toqpixmap()
+        drawFaceLandmarks(face)
         self.galleryHandler.emit(face)
         self.tagFaceForm.show()
-
-    def tagFacesByName(self):
-        matches = []
-        photo = self.activeGrid.photoAtPosition(0, 0)
-        known_face = photo.getEncodings()
-        print(known_face)
-        for face in self.storage.fetchAllFaces():
-            unknown_face = face["encodings"]
-            if utils.compareFaces(known_face, unknown_face):
-                matches.append(face)
-        self.activeGrid.populate_grid(matches)
-
-    def list_gallery_tags(self):
-        self.storage.open()
-        image_list = self.storage.fetch_tags()
-        self.activeGrid.populate_grid(self.activeGrid, image_list)
 
     def new_tagged_gallery(self):
         new_gallery_path = QFileDialog.getExistingDirectory(self, 'Create new gallery')
@@ -204,11 +195,7 @@ class MainWindow(QMainWindow):
         self.storage.close()
         self.logger("New gallery at ", new_gallery_path)
 
-    def rescanGalleryFaces(self):
-        print("Rescanning gallery folder")
-        self.scanGalleryFaces(self.path)
-
-    def openFolderGallery(self):
+    def openGalleryFolder(self):
         path = QFileDialog.getExistingDirectory(self, 'Open gallery')
         if self.storage.open(path):
             face_list = self.storage.fetchAllFaces()
@@ -217,26 +204,6 @@ class MainWindow(QMainWindow):
             self.progressBar.show()
             self.startScanningThread(path)
         self.logger("Working gallery at: ", path)
-
-    def drawFaceLandmarks(self):
-        photo = self.activeGrid.photoAtPosition(0, 0)
-        pixmap = photo.getPixmap()
-        painter = QPainter(pixmap)
-        painter.setPen(QColor(255, 255, 0))
-        for marks in photo.getLandmarks():
-            for positions in marks:
-                for position in get_line(marks[positions]):
-                    if len(position) > 1:
-                        painter.drawLine(*position[0], *position[1])
-        photo.setPixmap(pixmap)
-
-    def startScanningThread(self, path):
-        worker = ScanWorker(self.executeScanningWork, path)
-        worker.signals.result.connect(self.scanningDone)
-        worker.signals.finished.connect(self.scanningComplete)
-        worker.signals.progress.connect(self.trackScanningProgress)
-        self.progressBar.setValue(0)
-        self.threadpool.start(worker)
 
     def executeScanningWork(self, path, progress_callback):
         data = []
@@ -254,20 +221,12 @@ class MainWindow(QMainWindow):
         self.storage.insertFaces(data)
         return path
 
-    def trackScanningProgress(self, progress):
-        self.progressBar.setValue(progress)
-        self.logger("Scanning gallery completed: ", progress)
-
-    def scanningDone(self, path):
-        self.logger("encode ", " done")
-        if self.storage.open(path):
-            face_list = self.storage.fetchAllFaces()
-            self.thumbnailGrid.populate_grid(face_list)
-
-    def scanningComplete(self):
-        self.progressBar.hide()
-        self.logger("Scanning complete ", "Done")
-
-    def onTaggerHandlerMessage(self, message):
-        print(message)
-        self.logger("Tag name", message)
+    def onTaggerHandlerMessage(self, known_face):
+        tagged = []
+        for unknown_face in self.storage.fetchAllFaces():
+            if utils.compareFaces(known_face.encodings, unknown_face.encodings):
+                unknown_face.tags = known_face.tags
+                tagged.append(unknown_face)
+        self.thumbnailGrid.populate_grid(tagged)
+        to_tag = [(face.tags, face.gallery_id, face.face_id) for face in tagged]
+        self.storage.updateAll(to_tag)

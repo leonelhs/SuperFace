@@ -13,7 +13,8 @@ def toQPixmap(raw_bytes):
 
 
 class Face:
-    def __init__(self, gallery_id, face_id, match, tags, pixmap, encodings, landmarks):
+    def __init__(self, image_path, gallery_id, face_id, match, tags, pixmap, encodings, landmarks):
+        self.image_path = image_path
         self.gallery_id = gallery_id
         self.face_id = face_id
         self.match = match
