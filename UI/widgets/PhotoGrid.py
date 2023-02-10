@@ -15,14 +15,15 @@ def get_line(array):
 class PhotoGrid(QScrollArea):
     def __init__(self, face, *args):
         QScrollArea.__init__(self, *args)
-        self.doubleClick = None
         self.click = None
+        self.doubleClick = None
+        self.contextTagEvent = None
+        self.contextLandmarksEvent = None
         self.setWidgetResizable(True)
         self.scroll_contents = QWidget()
         self.layout = QGridLayout(self.scroll_contents)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.setWidget(self.scroll_contents)
-        self.setStyle()
 
     def setStyle(self, style=""):
         self.setStyleSheet(u"background-color: rgb(255, 255, 255)")
@@ -46,6 +47,12 @@ class PhotoGrid(QScrollArea):
     def setDoubleClickEvent(self, callback):
         self.doubleClick = callback
 
+    def setContextTagEvent(self, callback):
+        self.contextTagEvent = callback
+
+    def setContextLandmarksEvent(self, callback):
+        self.contextLandmarksEvent = callback
+
     def getWidth(self):
         return self.size().width()
 
@@ -53,6 +60,8 @@ class PhotoGrid(QScrollArea):
         photo_layout = Photo(face)
         photo_layout.setClickEvent(self.click)
         photo_layout.setDoubleClickEvent(self.doubleClick)
+        photo_layout.setContextTagEvent(self.contextTagEvent)
+        photo_layout.setContextLandmarksEvent(self.contextLandmarksEvent)
         return photo_layout
 
     def clearPhotos(self):

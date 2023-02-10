@@ -1,5 +1,5 @@
 from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QVBoxLayout, QLabel
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QMenu
 
 
 def fit_image(pixmap, size):
@@ -10,8 +10,12 @@ class Photo(QVBoxLayout):
 
     def __init__(self, face, *args):
         QVBoxLayout.__init__(self, *args)
+        # mouse events
         self.click = None
         self.doubleClick = None
+        self.contextTagEvent = None
+        self.contextLandmarksEvent = None
+
         self.face = face
         self.frame = QLabel()
         self.frame.setAlignment(Qt.AlignCenter)
@@ -23,6 +27,7 @@ class Photo(QVBoxLayout):
         self.addWidget(self.label)
         self.frame.mousePressEvent = self.clickEvent
         self.frame.mouseDoubleClickEvent = self.doubleClickEvent
+        self.frame.contextMenuEvent = self.contextMenuEvent
 
     def getFrame(self):
         return self.frame
@@ -66,3 +71,20 @@ class Photo(QVBoxLayout):
 
     def setDoubleClickEvent(self, callback):
         self.doubleClick = callback
+
+    def setContextTagEvent(self, callback):
+        self.contextTagEvent = callback
+
+    def setContextLandmarksEvent(self, callback):
+        self.contextLandmarksEvent = callback
+
+    def contextMenuEvent(self, event):
+        context = QMenu(self.frame)
+        tagAction = context.addAction("Tag this person")
+        marksAction = context.addAction("Show face landmarks")
+        action = context.exec_(event.globalPos())
+        if action == tagAction:
+            self.contextTagEvent(event, self.face)
+        elif action == marksAction:
+            self.contextLandmarksEvent(event, self.face)
+

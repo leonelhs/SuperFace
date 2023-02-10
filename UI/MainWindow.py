@@ -69,6 +69,8 @@ class MainWindow(QMainWindow):
         self.thumbnailGrid = PhotoGrid(self.central_widget)
         self.thumbnailGrid.setClickEvent(self.onActivePhotoClicked)
         self.thumbnailGrid.setDoubleClickEvent(self.onActivePhotoDoubleClicked)
+        self.thumbnailGrid.setContextTagEvent(self.onContextMenuTagClicked)
+        self.thumbnailGrid.setContextLandmarksEvent(self.onContextMenuLandmarksClicked)
 
         self.widgets_layout.addWidget(self.thumbnailGrid)
 
@@ -146,7 +148,8 @@ class MainWindow(QMainWindow):
 
     def openRecentGallery(self, path):
         if self.storage.open(path):
-            self.scanGalleryFaces()
+            face_list = self.storage.fetchAllFaces()
+            self.thumbnailGrid.populate_grid(face_list)
 
     def appendFileRecents(self):
         recents = self.storage.fetchGalleries()
@@ -165,6 +168,13 @@ class MainWindow(QMainWindow):
         self.logger("Working image at: ", face.face_id)
 
     def onActivePhotoDoubleClicked(self, event, face):
+        self.logger("Double clicked ", face.face_id)
+
+    def onContextMenuTagClicked(self, event, face):
+        self.galleryHandler.emit(face)
+        self.tagFaceForm.show()
+
+    def onContextMenuLandmarksClicked(self, event, face):
         self.galleryHandler.emit(face)
         self.tagFaceForm.show()
 
@@ -225,14 +235,14 @@ class MainWindow(QMainWindow):
         worker.signals.result.connect(self.scanningDone)
         worker.signals.finished.connect(self.scanningComplete)
         worker.signals.progress.connect(self.trackScanningProgress)
+        self.progressBar.setValue(0)
         self.threadpool.start(worker)
 
     def executeScanningWork(self, path, progress_callback):
         data = []
         files = utils.scanFolderImages(path)
         count_files = len(files)
-        positions = grid_positions(count_files, 5)
-        for position, file in zip(positions, files):
+        for file in files:
             image_file = utils.getPath(path, file)
             image = utils.imageOpen(image_file)
             np_array = utils.npArray(image)
@@ -261,4 +271,3 @@ class MainWindow(QMainWindow):
     def onTaggerHandlerMessage(self, message):
         print(message)
         self.logger("Tag name", message)
-        # self.raise_()

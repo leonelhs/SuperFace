@@ -1,11 +1,10 @@
 import qtawesome as qta
 from PySide6.QtCore import (QCoreApplication, QMetaObject, Qt, Signal)
 from PySide6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit,
-                               QPushButton, QVBoxLayout, QWidget)
+                               QPushButton, QVBoxLayout, QWidget, QMessageBox)
 
 
 class Tagging(QWidget):
-
     taggerHandler = Signal(str)
 
     def __init__(self, parent=None):
@@ -21,7 +20,6 @@ class Tagging(QWidget):
 
     def setupUi(self):
         self.layout = QVBoxLayout(self)
-
         self.photoLayout = QVBoxLayout()
         self.photoLabel = QLabel(self)
         self.photoLabel.setAlignment(Qt.AlignCenter)
@@ -55,18 +53,28 @@ class Tagging(QWidget):
         QMetaObject.connectSlotsByName(self)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
+        Form.setWindowTitle(QCoreApplication.translate("Form", u"Tagging Face ", None))
         self.photoLabel.setText(QCoreApplication.translate("Form", u"Photo", None))
         self.buttonOK.setText(QCoreApplication.translate("Form", u"OK", None))
         self.buttonCancel.setText(QCoreApplication.translate("Form", u"Cancel", None))
 
+    def showDialog(self, message):
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Tag name")
+        dialog.setText(message)
+        dialog.exec()
+
     def onClickOK(self):
-        self.taggerHandler.emit(self.tagEdit.text())
-        self.close()
+        tagName = self.tagEdit.text()
+        if tagName:
+            self.taggerHandler.emit(tagName)
+            self.close()
+        else:
+            self.showDialog("Please enter a name for this person!")
 
     def onClickCancel(self):
         self.close()
 
     def onGalleryHandlerMessage(self, face):
-        self.photoLabel.setPixmap(face["pixmap"])
-        self.tagEdit.setText(face["file"])
+        self.photoLabel.setPixmap(face.pixmap)
+        self.tagEdit.setText(face.match)

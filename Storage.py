@@ -2,7 +2,6 @@ import contextlib
 import sqlite3
 from datetime import datetime
 from sqlite3 import connect as connect
-
 from Face import Face
 
 
@@ -35,7 +34,7 @@ class Storage:
                     self._gallery_id = cur.execute(query, (self._gallery_path,)).fetchone()[0]
                     if self._gallery_path:
                         return True
-                except:
+                except sqlite3.Error:
                     pass
                     return False
 
@@ -93,5 +92,5 @@ class Storage:
                     thumbnail BLOB, 
                     encodings BLOB, 
                     landmarks BLOB, 
-                    PRIMARY KEY (face_id));
+                    PRIMARY KEY (gallery_id, face_id));
                 """)
