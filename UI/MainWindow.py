@@ -1,3 +1,5 @@
+import shutil
+
 from PySide6.QtCore import (QCoreApplication, QMetaObject, Signal, QThreadPool)
 from PySide6.QtGui import QPainter, QColor
 from PySide6.QtWidgets import (QHBoxLayout, QMenuBar,
@@ -7,7 +9,8 @@ from PySide6.QtWidgets import (QHBoxLayout, QMenuBar,
 import utils
 from Actions import new_action, ActionRecents
 from Storage import Storage
-from SuperScanner import SuperScanner
+from PhotoScanner import PhotoScanner
+from UI.Enhancements import Enhancements
 from UI.Tagging import Tagging
 from UI.widgets.PhotoGrid import PhotoGrid
 
@@ -35,7 +38,7 @@ def drawFaceLandmarks(face):
                     painter.drawLine(*position[0], *position[1])
 
 
-class MainWindow(QMainWindow, SuperScanner):
+class MainWindow(QMainWindow, PhotoScanner):
     galleryHandler = Signal(object)
 
     def __init__(self):
@@ -80,6 +83,7 @@ class MainWindow(QMainWindow, SuperScanner):
         self.thumbnailGrid.setDoubleClickEvent(self.onActivePhotoDoubleClicked)
         self.thumbnailGrid.setContextTagEvent(self.onContextMenuTagClicked)
         self.thumbnailGrid.setContextLandmarksEvent(self.onContextMenuLandmarksClicked)
+        self.thumbnailGrid.setContextNewGalleryEvent(self.onContextMenuNewGalleryClicked)
 
         self.widgets_layout.addWidget(self.thumbnailGrid)
 
@@ -147,8 +151,6 @@ class MainWindow(QMainWindow, SuperScanner):
         self.menuGallery.addAction(self.actionRescanGallery)
 
         self.actionGalleryOpen.triggered.connect(self.openGalleryFolder)
-        # slots gallery
-        self.actionNewGallery.triggered.connect(self.new_tagged_gallery)
 
     def openRecentGallery(self, path):
         if self.storage.open(path):
@@ -172,6 +174,9 @@ class MainWindow(QMainWindow, SuperScanner):
         self.logger("Working image at: ", face.face_id)
 
     def onActivePhotoDoubleClicked(self, event, face):
+        widget = Enhancements()
+        widget.resize(1200, 800)
+        widget.show()
         self.logger("Double clicked ", face.face_id)
 
     def onContextMenuTagClicked(self, event, face):
@@ -185,15 +190,14 @@ class MainWindow(QMainWindow, SuperScanner):
         self.galleryHandler.emit(face)
         self.tagFaceForm.show()
 
-    def new_tagged_gallery(self):
-        new_gallery_path = QFileDialog.getExistingDirectory(self, 'Create new gallery')
-        self.storage.open()
-        face_list = self.storage.fetch_tagged(self.active_tag)
-        for face in face_list:
-            shutil.move(face['path'], new_gallery_path)
-            self.storage.deleteBy(face['file'])
-        self.storage.close()
-        self.logger("New gallery at ", new_gallery_path)
+    def onContextMenuNewGalleryClicked(self, event, face):
+        tagged_list = []
+        new_gallery_path = QFileDialog.getExistingDirectory(self, 'Open gallery')
+        for tagged_face in self.storage.fetchAllFaces():
+            if tagged_face.tags == face.tags:
+                tagged_list.append(tagged_face)
+        for tagged_face in tagged_list:
+            shutil.move(tagged_face.image_path, new_gallery_path)
 
     def openGalleryFolder(self):
         path = QFileDialog.getExistingDirectory(self, 'Open gallery')

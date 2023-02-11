@@ -1,21 +1,16 @@
+from abc import abstractmethod
+
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QMenu
 
 
-def fit_image(pixmap, size):
-    return pixmap.scaled(size, size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-
-class Photo(QVBoxLayout):
+class PhotoBase(QVBoxLayout):
 
     def __init__(self, face, *args):
         QVBoxLayout.__init__(self, *args)
         # mouse events
         self.click = None
         self.doubleClick = None
-        self.contextTagEvent = None
-        self.contextLandmarksEvent = None
-        self.contextNewGalleryEvent = None
 
         self.face = face
         self.tags = "Unknown"
@@ -77,26 +72,7 @@ class Photo(QVBoxLayout):
     def setDoubleClickEvent(self, callback):
         self.doubleClick = callback
 
-    def setContextTagEvent(self, callback):
-        self.contextTagEvent = callback
-
-    def setContextLandmarksEvent(self, callback):
-        self.contextLandmarksEvent = callback
-
-    def setContextNewGalleryEvent(self, callback):
-        self.contextNewGalleryEvent = callback
-
+    @abstractmethod
     def contextMenuEvent(self, event):
-        context = QMenu(self.frame)
-        tagAction = context.addAction("Tag this person")
-        marksAction = context.addAction("Show face landmarks")
-        newGalleryAction = context.addAction("Create new gallery")
-
-        action = context.exec_(event.globalPos())
-        if action == tagAction:
-            self.contextTagEvent(event, self.face)
-        elif action == marksAction:
-            self.contextLandmarksEvent(event, self.face)
-        elif action == newGalleryAction:
-            self.contextNewGalleryEvent(event, self.face)
+        pass
 

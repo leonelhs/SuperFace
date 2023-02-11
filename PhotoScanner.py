@@ -3,7 +3,7 @@ from abc import abstractmethod
 from ScanWorker import ScanWorker
 
 
-class SuperScanner:
+class PhotoScanner:
 
     def __init__(self):
         self.storage = None

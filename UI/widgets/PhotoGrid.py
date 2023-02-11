@@ -7,11 +7,6 @@ def grid_positions(length, max_columns):
     return [(row, column) for row in range(length) for column in range(max_columns)]
 
 
-def get_line(array):
-    for i in range(0, len(array), 2):
-        yield array[i:i + 2]
-
-
 class PhotoGrid(QScrollArea):
     def __init__(self, face, *args):
         QScrollArea.__init__(self, *args)
@@ -19,6 +14,7 @@ class PhotoGrid(QScrollArea):
         self.doubleClick = None
         self.contextTagEvent = None
         self.contextLandmarksEvent = None
+        self.contextNewGalleryEvent = None
         self.setWidgetResizable(True)
         self.scroll_contents = QWidget()
         self.layout = QGridLayout(self.scroll_contents)
@@ -53,16 +49,20 @@ class PhotoGrid(QScrollArea):
     def setContextLandmarksEvent(self, callback):
         self.contextLandmarksEvent = callback
 
+    def setContextNewGalleryEvent(self, callback):
+        self.contextNewGalleryEvent = callback
+
     def getWidth(self):
         return self.size().width()
 
     def newPhoto(self, face):
-        photo_layout = Photo(face)
-        photo_layout.setClickEvent(self.click)
-        photo_layout.setDoubleClickEvent(self.doubleClick)
-        photo_layout.setContextTagEvent(self.contextTagEvent)
-        photo_layout.setContextLandmarksEvent(self.contextLandmarksEvent)
-        return photo_layout
+        photo = Photo(face)
+        photo.setClickEvent(self.click)
+        photo.setDoubleClickEvent(self.doubleClick)
+        photo.setContextTagEvent(self.contextTagEvent)
+        photo.setContextLandmarksEvent(self.contextLandmarksEvent)
+        photo.setContextNewGalleryEvent(self.contextNewGalleryEvent)
+        return photo
 
     def clearPhotos(self):
         while self.layout.count():
