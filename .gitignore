@@ -3,6 +3,7 @@ test
 fast
 superfast
 images
+.idea
 .gallery.db
 .thumbnails.db
 __pycache__

@@ -1,14 +1,11 @@
-import sys
-
-from PySide6 import QtWidgets
 from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt)
 from PySide6.QtGui import (QImage, QPixmap)
 from PySide6.QtWidgets import (QHBoxLayout, QMenu, QMenuBar, QSplitter,
                                QStatusBar, QToolBar, QWidget, QFileDialog, QMainWindow)
 
-from AI.illuminate.lowlight import lowlight
-from AI.super_resolution import super_resolution
-from AI.zero_background import ZeroBackground
+# from AI.illuminate.lowlight import lowlight
+# from AI.super_resolution import super_resolution
+# from AI.zero_background import ZeroBackground
 from Actions import new_action
 from UI.widgets.PhotoPanel import PhotoPanel
 
@@ -63,7 +60,7 @@ class Enhancements(QMainWindow):
         self.low_light = new_action(self, "../assets/edit-image-face-show.svg")
         self.face_marks = new_action(self, "../assets/edit-image-face-show.svg")
 
-        self.zero = ZeroBackground()
+        # self.zero = ZeroBackground()
         self.setup_ui(self)
 
     def setup_ui(self, main_window):
@@ -155,13 +152,3 @@ class Enhancements(QMainWindow):
         self.show_message("Light enhancement at: ", image_result)
         display_image(image_result, self.outputPanel.face)
 
-
-if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
-
-    widget = Enhancements()
-    widget.resize(1200, 800)
-
-    widget.show()
-
-    sys.exit(app.exec())
