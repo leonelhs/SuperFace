@@ -1,236 +1,177 @@
-import shutil
-
-from PySide6.QtCore import (QCoreApplication, QMetaObject, Signal, QThreadPool)
-from PySide6.QtGui import QPainter, QColor
-from PySide6.QtWidgets import (QHBoxLayout, QMenuBar,
-                               QProgressBar, QStatusBar,
-                               QVBoxLayout, QWidget, QMainWindow, QMenu, QFileDialog)
+from PySide6.QtCore import (QCoreApplication, QMetaObject, QRect, Qt, QThreadPool)
+from PySide6.QtWidgets import (QHBoxLayout, QMenu, QMenuBar, QSplitter,
+                               QStatusBar, QToolBar, QWidget, QFileDialog, QMainWindow, QVBoxLayout)
 
 import utils
-from Actions import new_action, ActionRecents
+from AI.TaskLowLight import TaskLowLight
+from AI.TaskSuperFace import TaskSuperFace
+from AI.TaskZeroBackground import TaskZeroBackground
+from Actions import Action, ActionRecents
+from Face import faceBuild
 from Storage import Storage
-from PhotoScanner import PhotoScanner
-from UI.Enhancements import Enhancements
-from UI.Tagging import Tagging
-from UI.widgets.PhotoGrid import PhotoGrid
-
-
-def get_line(array):
-    for i in range(0, len(array), 2):
-        yield array[i:i + 2]
-
-
-def grid_positions(length, max_columns):
-    return [(row, column) for row in range(length) for column in range(max_columns)]
+from UI.widgets.LoadingProgressBar import LoadingProgressBar
+from UI.widgets.PhotoPanel import PhotoPanel
 
 
 def tr(label):
     return QCoreApplication.translate("MainWindow", label, None)
 
 
-def drawFaceLandmarks(face):
-    painter = QPainter(face.pixmap)
-    painter.setPen(QColor(255, 255, 0))
-    for marks in face.landmarks:
-        for positions in marks:
-            for position in get_line(marks[positions]):
-                if len(position) > 1:
-                    painter.drawLine(*position[0], *position[1])
+class MainWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.lowLight = None
+        self.superFace = None
+        self.zeroBackground = None
 
-
-class MainWindow(QMainWindow, PhotoScanner):
-    galleryHandler = Signal(object)
-
-    def __init__(self):
-        super().__init__()
         self.storage = None
         self.menuRecents = None
-        self.menuGallery = None
-        self.menuFile = None
-        self.thumbnailGrid = None
-        self.statusbar = None
-        self.menubar = None
-        self.progressBar = None
-        self.widgets_layout = None
         self.central_layout = None
+        self.widgets_layout = None
+
+        self.progressBar = None
+        self.workingImage = None
+        self.image_path = None
+        self.folder_path = None
+        self.inputPanel = None
+        self.outputPanel = None
+        self.toolBar = None
+        self.statusbar = None
+        self.menuFile = None
+        self.menubar = None
+        self.splitter = None
+        self.splitLayout = None
         self.central_widget = None
 
-        self.actionGalleryOpen = new_action(self, "./assets/document-open.svg")
-        self.actionGalleryRecents = new_action(self, "./assets/document-open.svg")
-
-        self.actionTagFaces = new_action(self, "./assets/edit-image-face-show.svg")
-        self.actionMarksFace = new_action(self, "./assets/edit-image-face-show.svg")
-
-        self.actionGalleryTags = new_action(self, "./assets/document-open.svg")
-        self.actionNewGallery = new_action(self, "./assets/document-open.svg")
-        self.actionRescanGallery = new_action(self, "./assets/document-open.svg")
+        self.image_open = Action(self, "Open Image", "fa.folder-open")
+        self.image_save = Action(self, "Save Image", "fa.save")
+        self.super_resolution = Action(self, "Super Resolution", "mdi.face")
+        self.zero_background = Action(self, "Zero Background", "mdi.face-recognition")
+        self.low_light = Action(self, "Light Enhancement", "mdi.face-shimmer")
 
         self.threadpool = QThreadPool()
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
 
-        self.tagFaceForm = Tagging()
-        self.storage = Storage()
+        self.setupUI(self)
 
-        self.setupUi(self)
-
-    def setupUi(self, main_window):
+    def setupUI(self, main_window):
         self.central_widget = QWidget(main_window)
-        self.central_layout = QHBoxLayout(self.central_widget)
-        self.widgets_layout = QVBoxLayout()
+        self.central_layout = QVBoxLayout(self.central_widget)
 
-        self.thumbnailGrid = PhotoGrid(self.central_widget)
-        self.thumbnailGrid.setClickEvent(self.onActivePhotoClicked)
-        self.thumbnailGrid.setDoubleClickEvent(self.onActivePhotoDoubleClicked)
-        self.thumbnailGrid.setContextTagEvent(self.onContextMenuTagClicked)
-        self.thumbnailGrid.setContextLandmarksEvent(self.onContextMenuLandmarksClicked)
-        self.thumbnailGrid.setContextNewGalleryEvent(self.onContextMenuNewGalleryClicked)
+        self.splitLayout = QHBoxLayout(self.central_widget)
+        self.splitter = QSplitter(self.central_widget)
+        self.splitter.setOrientation(Qt.Horizontal)
 
-        self.widgets_layout.addWidget(self.thumbnailGrid)
+        self.inputPanel = PhotoPanel(self.splitter)
+        self.outputPanel = PhotoPanel(self.splitter)
+        self.splitLayout.addWidget(self.splitter)
+        self.central_layout.addLayout(self.splitLayout)
 
-        self.progressBar = QProgressBar(self.central_widget)
-        self.progressBar.setValue(0)
+        self.progressBar = LoadingProgressBar()
         self.progressBar.hide()
-        self.widgets_layout.addWidget(self.progressBar)
-
-        self.central_layout.addLayout(self.widgets_layout)
+        self.central_layout.addWidget(self.progressBar)
 
         main_window.setCentralWidget(self.central_widget)
-
-        # Menu creation
         self.menubar = QMenuBar(main_window)
-        self.createMenus()
-        self.appendFileRecents()
-        main_window.setMenuBar(self.menubar)
 
-        # Statusbar creation
-        self.statusbar = QStatusBar(main_window)
-        main_window.setStatusBar(self.statusbar)
-
-        self.retranslateUI(main_window)
-
-        QMetaObject.connectSlotsByName(main_window)
-        self.galleryHandler.connect(self.tagFaceForm.onGalleryHandlerMessage)
-        self.tagFaceForm.taggerHandler.connect(self.onTaggerHandlerMessage)
-
-    def retranslateUI(self, main_window):
-        main_window.setWindowTitle(tr("Image AI Composer"))
-        self.menuFile.setTitle(tr("File"))
-        self.menuRecents.setTitle(tr("Open Recent Gallery"))
-        self.actionGalleryOpen.setText(tr("Open Gallery"))
-        self.actionGalleryOpen.setToolTip(tr("Open Gallery"))
-        self.actionGalleryOpen.setShortcut(tr("Ctrl+O"))
-
-        self.actionGalleryRecents.setText("politica")
-
-        self.menuGallery.setTitle(tr("Gallery"))
-        self.actionRescanGallery.setText(tr("Rescan gallery"))
-        self.actionGalleryTags.setText(tr("Faces tagged"))
-        self.actionNewGallery.setText(tr("New gallery"))
-
-        self.actionTagFaces.setToolTip(tr("Tag Faces"))
-
-    def createMenus(self):
-        # Menus
+        self.menubar.setGeometry(QRect(0, 0, 800, 24))
         self.menuFile = QMenu(self.menubar)
-        self.menuGallery = QMenu(self.menubar)
+
+        main_window.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar(main_window)
+
+        main_window.setStatusBar(self.statusbar)
+        self.toolBar = QToolBar(main_window)
+
+        main_window.addToolBar(Qt.TopToolBarArea, self.toolBar)
 
         self.menubar.addAction(self.menuFile.menuAction())
-        self.menubar.addAction(self.menuGallery.menuAction())
-        # actions file
-        self.menuFile.addAction(self.actionGalleryOpen)
+        self.menuFile.addAction(self.image_open)
+        self.menuFile.addAction(self.image_save)
 
         self.menuRecents = QMenu(self.menuFile)
         self.menuFile.addMenu(self.menuRecents)
+        self.menuRecents.setTitle(tr("Open Recent Photo"))
 
-        # self.menuRecents.addAction(self.actionGalleryRecents)
-        # self.menuRecents.addAction(self.actionGalleryTags)
+        self.toolBar.addAction(self.super_resolution)
+        self.toolBar.addAction(self.zero_background)
+        self.toolBar.addAction(self.low_light)
 
-        # actions gallery
-        self.menuGallery.addAction(self.actionGalleryTags)
-        self.menuGallery.addAction(self.actionNewGallery)
-        self.menuGallery.addAction(self.actionRescanGallery)
+        self.image_open.setOnClickEvent(self.loadImageFile)
+        self.image_save.setOnClickEvent(self.saveImageFile)
 
-        self.actionGalleryOpen.triggered.connect(self.openGalleryFolder)
+        self.super_resolution.setOnClickEvent(self.process_super_resolution)
+        self.zero_background.setOnClickEvent(self.process_zero_background)
+        self.low_light.setOnClickEvent(self.process_lowlight)
 
-    def openRecentGallery(self, path):
-        if self.storage.open(path):
-            face_list = self.storage.fetchAllFaces()
-            self.thumbnailGrid.populate_grid(face_list)
+        self.retranslateUI(main_window)
 
-    def appendFileRecents(self):
-        recents = self.storage.fetchGalleries()
-        for recent in recents:
-            action = ActionRecents(self, recent[0])
-            action.setCallback(self.openRecentGallery)
-            self.menuRecents.addAction(action)
+        self.storage = Storage()
+        args = (self.threadpool, self.progressBar, self.outputPanel)
+        self.superFace = TaskSuperFace(*args)
+        self.zeroBackground = TaskZeroBackground(*args)
+        self.lowLight = TaskLowLight(*args)
+        self.appendFileRecents()
+
+        QMetaObject.connectSlotsByName(main_window)
+
+    def retranslateUI(self, main_window):
+        main_window.setWindowTitle(tr("Image AI Composer"))
+        self.image_open.setShortcut(tr("Ctrl+O"))
+        self.menuFile.setTitle(tr("File"))
+
+        self.image_open.setToolTip(tr("Open Image"))
+        self.super_resolution.setToolTip(tr("Super Resolution"))
+        self.zero_background.setToolTip(tr("Zero Background"))
+        self.low_light.setToolTip(tr("Low Light"))
 
     def resizeEvent(self, event):
+        print("resize")
         QMainWindow.resizeEvent(self, event)
 
-    def logger(self, tag, message):
-        self.statusbar.showMessage("{0} {1}".format(tag, message))
+    def openRecentPhoto(self, image_path):
+        self.workingImage = utils.imageOpen(image_path)
+        face = faceBuild(self.workingImage)
+        self.inputPanel.appendPhoto(face)
+            
+    def appendFileRecents(self):
+        recents = self.storage.fetchRecents()
+        for recent in recents:
+            action = ActionRecents(self, recent[0])
+            action.setCallback(self.openRecentPhoto)
+            self.menuRecents.addAction(action)
 
-    def onActivePhotoClicked(self, event, face):
-        self.logger("Working image at: ", face.face_id)
+    def show_message(self, title, message):
+        self.statusbar.showMessage("{0} {1}".format(title, message))
 
-    def onActivePhotoDoubleClicked(self, event, face):
-        widget = Enhancements()
-        widget.resize(1200, 800)
-        widget.show()
-        self.logger("Double clicked ", face.face_id)
+    def loadImageFile(self):
+        self.image_path = QFileDialog.getOpenFileName(self, 'Open Image')[0]
+        if self.image_path:
+            self.storage.insertRecent(self.image_path)
+            self.show_message("Working image at: ", self.image_path)
+            self.workingImage = utils.imageOpen(self.image_path)
+            face = faceBuild(self.workingImage)
+            self.inputPanel.appendPhoto(face)
 
-    def onContextMenuTagClicked(self, event, face):
-        self.galleryHandler.emit(face)
-        self.tagFaceForm.show()
+    def saveImageFile(self):
+        image_path = QFileDialog.getSaveFileName(self, 'Save Image')[0]
+        if image_path:
+            self.show_message("Save image at: ", self.image_path)
+            pixmap = self.outputPanel.getPhoto()
+            image = pixmap.toImage()
+            image.save(image_path, "PNG", -1)
 
-    def onContextMenuLandmarksClicked(self, event, face):
-        image = utils.imageOpen(face.image_path)
-        face.pixmap = image.toqpixmap()
-        drawFaceLandmarks(face)
-        self.galleryHandler.emit(face)
-        self.tagFaceForm.show()
+    def process_super_resolution(self):
+        self.show_message("Super resolution at: ", self.image_path)
+        self.progressBar.show()
+        self.superFace.startEnhanceThread(self.workingImage)
 
-    def onContextMenuNewGalleryClicked(self, event, face):
-        tagged_list = []
-        new_gallery_path = QFileDialog.getExistingDirectory(self, 'Open gallery')
-        for tagged_face in self.storage.fetchAllFaces():
-            if tagged_face.tags == face.tags:
-                tagged_list.append(tagged_face)
-        for tagged_face in tagged_list:
-            shutil.move(tagged_face.image_path, new_gallery_path)
+    def process_zero_background(self):
+        self.show_message("Zeo background at: ", self.image_path)
+        self.progressBar.show()
+        self.zeroBackground.startEnhanceThread(self.workingImage)
 
-    def openGalleryFolder(self):
-        path = QFileDialog.getExistingDirectory(self, 'Open gallery')
-        if self.storage.open(path):
-            face_list = self.storage.fetchAllFaces()
-            self.thumbnailGrid.populate_grid(face_list)
-        else:
-            self.progressBar.show()
-            self.startScanningThread(path)
-        self.logger("Working gallery at: ", path)
-
-    def executeScanningWork(self, path, progress_callback):
-        data = []
-        files = utils.scanFolderImages(path)
-        count_files = len(files)
-        for file in files:
-            image_file = utils.getPath(path, file)
-            image = utils.imageOpen(image_file)
-            np_array = utils.npArray(image)
-            encodings = utils.faceEncodings(np_array)
-            landmarks = utils.faceLandmarks(np_array)
-            thumbnail = utils.imageThumbnail(image)
-            data.append((hash(path), file, thumbnail, encodings, landmarks))
-            progress_callback.emit(len(data) * 100 / count_files)
-        self.storage.insertFaces(data)
-        return path
-
-    def onTaggerHandlerMessage(self, known_face):
-        tagged = []
-        for unknown_face in self.storage.fetchAllFaces():
-            if utils.compareFaces(known_face.encodings, unknown_face.encodings):
-                unknown_face.tags = known_face.tags
-                tagged.append(unknown_face)
-        self.thumbnailGrid.populate_grid(tagged)
-        to_tag = [(face.tags, face.gallery_id, face.face_id) for face in tagged]
-        self.storage.updateAll(to_tag)
+    def process_lowlight(self):
+        self.show_message("Light enhancement at: ", self.image_path)
+        self.progressBar.show()
+        self.lowLight.startEnhanceThread(self.workingImage)

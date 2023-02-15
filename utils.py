@@ -2,8 +2,6 @@ import os
 import pickle
 
 import PIL.Image
-import face_recognition
-import filetype
 import numpy as np
 from PySide6.QtGui import QImage, QPixmap
 
@@ -36,51 +34,18 @@ def npArray(image):
     return np.array(image)
 
 
-def scanFolderImages(folder_path):
-    image_list = []
-    for file in os.listdir(folder_path):
-        image_file = os.path.join(folder_path, file)
-        if os.path.isfile(image_file):
-            if filetype.is_image(image_file):
-                image_list.append(file)
-    return image_list
-
-
-def faceEncodings(face):
-    try:
-        encodings = face_recognition.face_encodings(face)
-        return serialize(encodings)
-    except IndexError:
-        return None
-
-
-def faceLandmarks(face):
-    try:
-        landmarks = face_recognition.face_landmarks(face)
-        return serialize(landmarks)
-    except IndexError:
-        return None
-
-
-def compareFaces(known_face, unknown_face):
-    try:
-        return face_recognition.compare_faces(known_face, unknown_face[0])[0]
-    except IndexError:
-        return False
-
-
-# def pil2pixmap(self, im):
-#     if im.mode == "RGB":
-#         r, g, b = im.split()
-#         im = Image.merge("RGB", (b, g, r))
-#     elif im.mode == "RGBA":
-#         r, g, b, a = im.split()
-#         im = Image.merge("RGBA", (b, g, r, a))
-#     elif im.mode == "L":
-#         im = im.convert("RGBA")
-#     # Bild in RGBA konvertieren, falls nicht bereits passiert
-#     im2 = im.convert("RGBA")
-#     data = im2.tobytes("raw", "RGBA")
-#     qim = QtGui.QImage(data, im.size[0], im.size[1], QtGui.QImage.Format_ARGB32)
-#     pixmap = QtGui.QPixmap.fromImage(qim)
-#     return pixmap
+def pil2pixmap(image):
+    if image.mode == "RGB":
+        r, g, b = image.split()
+        image = PIL.Image.merge("RGB", (b, g, r))
+    elif image.mode == "RGBA":
+        r, g, b, a = image.split()
+        image = PIL.Image.merge("RGBA", (b, g, r, a))
+    elif image.mode == "L":
+        image = image.convert("RGBA")
+    # Bild in RGBA konvertieren, falls nicht bereits passiert
+    im2 = image.convert("RGBA")
+    data = im2.tobytes("raw", "RGBA")
+    qim = QImage(data, image.size[0], image.size[1], QImage.Format_ARGB32)
+    pixmap = QPixmap.fromImage(qim)
+    return pixmap

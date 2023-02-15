@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (QHBoxLayout, QMenu, QMenuBar, QSplitter,
 import utils
 from Actions import new_action
 from Storage import Storage
-from ScanWorker import ScanWorker
+from Tasks.EnhanceWorker import EnhanceWorker
 from thumbnail_grid import ThumbnailGrid
 from UI.Tagging import Tagging
 
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
         # self.raise_()
 
     def startEncodingThread(self, gallery_path):
-        worker = ScanWorker(self.executeEncodings, gallery_path)
+        worker = EnhanceWorker(self.executeEncodings, gallery_path)
         worker.signals.result.connect(self.encodingDone)
         worker.signals.finished.connect(self.scanningComplete)
         worker.signals.progress.connect(self.trackScanningProgress)

@@ -1,5 +1,6 @@
 import pickle
 
+import PIL.Image
 from PySide6.QtGui import QImage, QPixmap
 
 
@@ -8,8 +9,38 @@ def unRaw(raw_bytes):
 
 
 def toQPixmap(raw_bytes):
-    image = QImage(raw_bytes, 128, 128, QImage.Format.Format_RGB888)
+    data = raw_bytes
+    image = QImage(data, data.size[0], data.size[1], QImage.Format.Format_RGB888)
     return QPixmap.fromImage(image)
+
+
+def pil2pixmap(image):
+    if image.mode == "RGB":
+        r, g, b = image.split()
+        image = PIL.Image.merge("RGB", (b, g, r))
+    elif image.mode == "RGBA":
+        r, g, b, a = image.split()
+        image = PIL.Image.merge("RGBA", (b, g, r, a))
+    elif image.mode == "L":
+        image = image.convert("RGBA")
+    # Bild in RGBA konvertieren, falls nicht bereits passiert
+    im2 = image.convert("RGBA")
+    data = im2.tobytes("raw", "RGBA")
+    qim = QImage(data, image.size[0], image.size[1], QImage.Format_ARGB32)
+    pixmap = QPixmap.fromImage(qim)
+    return pixmap
+
+
+def faceBuild(image):
+    return Face(
+        image_path=None,
+        gallery_id=None,
+        face_id=None,
+        match=None,
+        tags=None,
+        pixmap=image,
+        encodings=None,
+        landmarks=None)
 
 
 class Face:
@@ -19,6 +50,6 @@ class Face:
         self.face_id = face_id
         self.match = match
         self.tags = tags
-        self.pixmap = toQPixmap(pixmap)
-        self.encodings = unRaw(encodings)
-        self.landmarks = unRaw(landmarks)
+        self.pixmap = pil2pixmap(pixmap)
+        self.encodings = encodings
+        self.landmarks = landmarks

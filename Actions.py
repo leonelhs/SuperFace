@@ -1,18 +1,22 @@
-from PySide6.QtCore import QSize
-from PySide6.QtGui import QIcon, QAction
+import qtawesome as qta
+from PySide6.QtGui import QAction
 
 
-def new_icon(icon_path):
-    icon = QIcon()
-    icon.addFile(icon_path, QSize(), QIcon.Normal, QIcon.Off)
-    return icon
+class Action(QAction):
+    def __init__(self, window, text, icon, visible_in_menu=True):
+        super().__init__(window)
+        self.callback = None
+        self.setText(text)
+        icon = qta.icon(icon)
+        self.setIcon(icon)
+        self.setIconVisibleInMenu(visible_in_menu)
+        self.triggered.connect(self.onTriggered)
 
+    def setOnClickEvent(self, callback):
+        self.callback = callback
 
-def new_action(window, icon_path, visible_in_menu=False):
-    action = QAction(window)
-    action.setIcon(new_icon(icon_path))
-    action.setIconVisibleInMenu(visible_in_menu)
-    return action
+    def onTriggered(self):
+        self.callback()
 
 
 class ActionRecents(QAction):

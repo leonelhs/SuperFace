@@ -21,6 +21,18 @@ class Storage:
     def path(self):
         return self._gallery_path
 
+    def insertRecent(self, file_path):
+        with DbConnection(self._db_name) as con:
+            with con as ins:
+                data = (file_path, datetime.now())
+                ins.execute("INSERT INTO recents(photo_id, opened) VALUES(?, ?)", data)
+
+    def fetchRecents(self):
+        with DbConnection(self._db_name) as con:
+            with con as cur:
+                query = "SELECT photo_id FROM recents ORDER BY opened DESC LIMIT 10"
+                return cur.execute(query).fetchall()
+
     def open(self, gallery_path):
         self._gallery_path = gallery_path
         with DbConnection(self._db_name) as con:
@@ -92,4 +104,8 @@ class Storage:
                     encodings BLOB, 
                     landmarks BLOB, 
                     PRIMARY KEY (gallery_id, face_id));
+                
+                CREATE TABLE IF NOT EXISTS recents(
+                    photo_id TEXT NOT NULL,
+                    opened DATETIME);
                 """)
