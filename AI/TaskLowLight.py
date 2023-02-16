@@ -10,11 +10,8 @@ from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 class TaskLowLight(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, progressBar, panel):
-        super().__init__()
-        self.threadpool = threadpool
-        self.progressBar = progressBar
-        self.panelOutput = panel
+    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
+        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
         self.DCE_net = model.enhance_net_nopool().cpu()
         device = torch.load('./models/snapshots/Epoch99.pth', map_location=torch.device('cpu'))
         self.DCE_net.load_state_dict(device)

@@ -8,9 +8,13 @@ class Action(QAction):
         self.callback = None
         self.setText(text)
         icon = qta.icon(icon)
-        self.setIcon(icon)
+        super().setIcon(icon)
         self.setIconVisibleInMenu(visible_in_menu)
         self.triggered.connect(self.onTriggered)
+
+    def setIcon(self, image_icon):
+        icon = qta.icon(image_icon)
+        super().setIcon(icon)
 
     def setOnClickEvent(self, callback):
         self.callback = callback

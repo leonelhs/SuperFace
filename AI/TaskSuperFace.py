@@ -28,11 +28,8 @@ HF_MODELS = {
 
 class TaskSuperFace(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, progressBar, panel, scale=4):
-        super().__init__()
-        self.threadpool = threadpool
-        self.progressBar = progressBar
-        self.panelOutput = panel
+    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress, scale=4):
+        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.scale = scale
         self.model = RRDBNet(

@@ -34,7 +34,17 @@ def npArray(image):
     return np.array(image)
 
 
-def pil2pixmap(image):
+def unRaw(raw_bytes):
+    return pickle.loads(raw_bytes)
+
+
+def toQPixmap(raw_bytes):
+    data = raw_bytes
+    image = QImage(data, data.size[0], data.size[1], QImage.Format.Format_RGB888)
+    return QPixmap.fromImage(image)
+
+
+def pil2Pixmap(image):
     if image.mode == "RGB":
         r, g, b = image.split()
         image = PIL.Image.merge("RGB", (b, g, r))

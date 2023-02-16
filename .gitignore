@@ -4,7 +4,6 @@ fast
 superfast
 images
 .idea
-.gallery.db
-sample.jpg
+.images.db
 .thumbnails.db
 __pycache__
