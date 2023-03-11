@@ -1,11 +1,11 @@
 import os
-
-import numpy as np
+import sys
 import torch
+import logging4
+import numpy as np
 from PIL import Image
 from RealESRGAN.rrdbnet_arch import RRDBNet
-from RealESRGAN.utils import pad_reflect, split_image_into_overlapping_patches, stich_together, \
-    unpad_image
+from RealESRGAN.utils import pad_reflect, split_image_into_overlapping_patches, stich_together, unpad_image
 from huggingface_hub import hf_hub_url, cached_download
 
 from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
@@ -13,33 +13,40 @@ from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
 HF_MODELS = {
     2: dict(
         repo_id='sberbank-ai/Real-ESRGAN',
-        filename='RealESRGAN_x2.pth',
+        filename='./models/Real-ESRGAN/RealESRGAN_x2.pth',
     ),
     4: dict(
         repo_id='sberbank-ai/Real-ESRGAN',
-        filename='RealESRGAN_x4.pth',
+        filename='./models/Real-ESRGAN/RealESRGAN_x4.pth',
     ),
     8: dict(
         repo_id='sberbank-ai/Real-ESRGAN',
-        filename='RealESRGAN_x8.pth',
+        filename='./models/Real-ESRGAN/RealESRGAN_x8.pth',
     ),
 }
+
+logger = logging4.Logger('SuperFace')
+formatter = '[[time]] - [[name]] - [[level_name]] - [[msg]]'
+logger.add_channel(filename=sys.stdout,  level=logging4.DEBUG, formatter=formatter)
 
 
 class TaskSuperFace(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress, scale=4):
+    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
         super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+        self.model = None
+        self.scale = None
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.loadModel()
+
+    def loadModel(self, scale=2):
         self.scale = scale
         self.model = RRDBNet(
             num_in_ch=3, num_out_ch=3, num_feat=64,
             num_block=23, num_grow_ch=32, scale=scale
         )
-        self.load_weights('./models/Real-ESRGAN/RealESRGAN_x4.pth', download=False)
-
-    def logger(self, param, progress):
-        pass
+        self.load_weights(HF_MODELS[scale]["filename"], download=False)
+        logger.info("Model loaded to scale {0}X".format(self.scale))
 
     def load_weights(self, model_path, download=True):
         if not os.path.exists(model_path) and download:
@@ -49,7 +56,7 @@ class TaskSuperFace(TaskPhotoEnhancer):
             local_filename = os.path.basename(model_path)
             config_file_url = hf_hub_url(repo_id=config['repo_id'], filename=config['filename'])
             cached_download(config_file_url, cache_dir=cache_dir, force_filename=local_filename)
-            print('Weights downloaded to:', os.path.join(cache_dir, local_filename))
+            logger.info('Weights downloaded to:', os.path.join(cache_dir, local_filename))
 
         loadnet = torch.load(model_path)
         if 'params' in loadnet:
@@ -62,15 +69,15 @@ class TaskSuperFace(TaskPhotoEnhancer):
         self.model.to(self.device)
 
     @torch.cuda.amp.autocast()
-    def executeEnhanceWork(self, lr_image, progress_callback, batch_size=4, patches_size=192,
+    def executeEnhanceWork(self, image_low_res, progress_callback, batch_size=4, patches_size=192,
                            padding=24, pad_size=15):
         scale = self.scale
         device = self.device
-        lr_image = np.array(lr_image)
-        lr_image = pad_reflect(lr_image, pad_size)
+        image_low_res = np.array(image_low_res)
+        image_low_res = pad_reflect(image_low_res, pad_size)
 
         patches, p_shape = split_image_into_overlapping_patches(
-            lr_image, patch_size=patches_size, padding_size=padding
+            image_low_res, patch_size=patches_size, padding_size=padding
         )
 
         img = torch.FloatTensor(patches / 255).permute((0, 3, 1, 2)).to(device).detach()
@@ -84,7 +91,7 @@ class TaskSuperFace(TaskPhotoEnhancer):
         np_sr_image = sr_image.numpy()
 
         padded_size_scaled = tuple(np.multiply(p_shape[0:2], scale)) + (3,)
-        scaled_image_shape = tuple(np.multiply(lr_image.shape[0:2], scale)) + (3,)
+        scaled_image_shape = tuple(np.multiply(image_low_res.shape[0:2], scale)) + (3,)
         np_sr_image = stich_together(
             np_sr_image, padded_image_shape=padded_size_scaled,
             target_shape=scaled_image_shape, padding_size=padding * scale

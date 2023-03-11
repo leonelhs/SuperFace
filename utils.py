@@ -20,7 +20,6 @@ def rawToQPixmap(raw_bytes):
 
 
 def imageOpen(image_file):
-    image_file = os.path.join(image_file)
     image = PIL.Image.open(image_file)
     return image.convert('RGB')
 
@@ -38,24 +37,3 @@ def unRaw(raw_bytes):
     return pickle.loads(raw_bytes)
 
 
-def toQPixmap(raw_bytes):
-    data = raw_bytes
-    image = QImage(data, data.size[0], data.size[1], QImage.Format.Format_RGB888)
-    return QPixmap.fromImage(image)
-
-
-def pil2Pixmap(image):
-    if image.mode == "RGB":
-        r, g, b = image.split()
-        image = PIL.Image.merge("RGB", (b, g, r))
-    elif image.mode == "RGBA":
-        r, g, b, a = image.split()
-        image = PIL.Image.merge("RGBA", (b, g, r, a))
-    elif image.mode == "L":
-        image = image.convert("RGBA")
-    # Bild in RGBA konvertieren, falls nicht bereits passiert
-    im2 = image.convert("RGBA")
-    data = im2.tobytes("raw", "RGBA")
-    qim = QImage(data, image.size[0], image.size[1], QImage.Format_ARGB32)
-    pixmap = QPixmap.fromImage(qim)
-    return pixmap

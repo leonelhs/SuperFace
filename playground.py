@@ -4,3 +4,5 @@ def anonymous(callback, param):
 
 
 anonymous((lambda a: print(a)), "parameter")
+
+

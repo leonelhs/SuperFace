@@ -1,3 +1,10 @@
+########################################
+# Widget written by Jung Gyu Yoon
+# yjg30737@gmail.com
+# https://yjg30737.github.io
+# https://twitter.com/yjg30737
+#########################################
+
 from PySide6.QtWidgets import QProgressBar
 from PySide6.QtCore import QPropertyAnimation, QAbstractAnimation, QEasingCurve
 
