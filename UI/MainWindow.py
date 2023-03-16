@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 import qtawesome as qta
+from PIL import ImageFilter
 from PySide6.QtCore import (QCoreApplication, QMetaObject, Qt)
 from PySide6.QtWidgets import (QMenuBar, QSplitter, QStatusBar,
                                QVBoxLayout, QWidget, QMainWindow,
@@ -61,7 +62,7 @@ class MainWindow(QMainWindow):
         self.central_widget = None
 
         self.action_open = Action(self, "Open", "fa.folder-open")
-        self.action_save = Action(self, "Save", "fa.save")
+        self.action_save = Action(self, "Save as", "fa.save")
         self.action_zoom = Action(self, "Zoom", "ri.zoom-in-line")
         self.action_rotate = Action(self, "Rotate", "mdi6.rotate-right-variant")
 
@@ -93,7 +94,7 @@ class MainWindow(QMainWindow):
         self.statusbar = QStatusBar(main_window)
         main_window.setStatusBar(self.statusbar)
 
-        self.__createToolbar(main_window)
+        # self.__createToolbar(main_window)
 
         self.__retranslateUI(main_window)
         QMetaObject.connectSlotsByName(main_window)
@@ -132,10 +133,9 @@ class MainWindow(QMainWindow):
 
         self.toolBox.addButton("hires", "Scale image", self.processSuperResolution)
 
-        self.toolBox.addButton("zero", "Clear background", self.processZeroBackground)
-        self.toolBox.addButton("zero", "Set background", self.setCustomBackground)
+        self.toolBox.addButton("zero", "Remove background", self.processZeroBackground)
+        self.toolBox.addButton("zero", "Custom background", self.setCustomBackground)
         self.toolBox.addButton("light", "Shine picture", self.processLowlight)
-        self.toolBox.addButton("light", "Darker")
 
         self.main_splitter.addWidget(self.toolBox)
         self.toolBox.setCurrentIndex(0)
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
     def __dialogSaveFile(self):
         image_path = self.launchDialogSaveFile()
         if image_path:
-            self.workingImage().save(image_path, "PNG")
+            self.imageOutput().save(image_path, "PNG")
 
     @abstractmethod
     def showBoundingBox(self):
@@ -247,6 +247,10 @@ class MainWindow(QMainWindow):
         self.setImagePath(image_path)
         return utils.imageOpen(image_path)
 
+    def blurryImage(self):
+        image_working = self.imageInput().filter(ImageFilter.GaussianBlur(radius=25))
+        self.displayImageOutput(image_working)
+
     def displayImageInput(self, image):
         self.__imageInput = image
         displayImage(image, self.__sceneInput, self.__inputPanel)
@@ -283,5 +287,9 @@ class MainWindow(QMainWindow):
         self.statusbar.showMessage("{0} {1}".format(title, message))
 
     def showSettingsDialog(self):
-        original = self.workingImage()
+        original = self.imageOutput()
         self.displayImageOutput(original)
+
+    def onSliderBlurChanged(self, delta):
+        image_working = self.imageInput().filter(ImageFilter.GaussianBlur(radius=delta))
+        self.displayImageOutput(image_working)

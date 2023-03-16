@@ -36,3 +36,8 @@ class ToolBoxEnhancer(QToolBox):
         new_widget = widget(self.item(page))
         self.page(page).addWidget(new_widget)
         return new_widget
+
+    def createLayout(self, page, layout):
+        new_layout = layout(self.item(page))
+        self.page(page).addLayout(new_layout)
+        return new_layout

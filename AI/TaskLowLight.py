@@ -16,9 +16,6 @@ class TaskLowLight(TaskPhotoEnhancer):
         device = torch.load('./models/snapshots/Epoch99.pth', map_location=torch.device('cpu'))
         self.DCE_net.load_state_dict(device)
 
-    def logger(self, param, progress):
-        pass
-
     def executeEnhanceWork(self, image, progress_callback):
         image = (np.asarray(image) / 255.0)
         image = torch.from_numpy(image).float()
@@ -29,8 +26,3 @@ class TaskLowLight(TaskPhotoEnhancer):
         grid = make_grid(enhanced_image)
         ndarr = grid.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
         return PIL.Image.fromarray(ndarr)
-
-
-
-
-

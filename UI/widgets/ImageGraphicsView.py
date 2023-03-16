@@ -7,6 +7,7 @@ class ImageGraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super(ImageGraphicsView, self).__init__(parent)
         QMetaObject.connectSlotsByName(self)
+        self.__style()
 
     # FIXME or be sure the last item it's an object of QGraphicsPixmapItem
     def redraw(self):
@@ -17,3 +18,7 @@ class ImageGraphicsView(QGraphicsView):
         if self.items():
             self.redraw()
         return super().resizeEvent(event)
+
+    def __style(self):
+        self.setStyleSheet("QGraphicsView::hover"
+                           "{border: 2px solid #6CC417;}")

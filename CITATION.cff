@@ -1,0 +1,8 @@
+@inproceedings{Zero-DCE,
+ author = {Guo, Chunle Guo and Li, Chongyi and Guo, Jichang and Loy, Chen Change and Hou, Junhui and Kwong, Sam and Cong, Runmin},
+ title = {Zero-reference deep curve estimation for low-light image enhancement},
+ booktitle = {Proceedings of the IEEE conference on computer vision and pattern recognition (CVPR)},
+ pages    = {1780-1789},
+ month = {June},
+ year = {2020}
+}

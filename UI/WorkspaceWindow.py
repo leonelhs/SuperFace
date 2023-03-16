@@ -1,4 +1,3 @@
-import PIL.Image
 from PySide6.QtCore import QThreadPool
 
 from AI.TaskLowLight import TaskLowLight
@@ -24,8 +23,8 @@ class WorkspaceWindow(MainWindow):
         self.taskZeroBackground = None
         self.taskSuperFace = None
         self.threadpool = None
-        self.createActions()
-        self.setupCallbacks()
+        # self.createActions()
+        # self.setupCallbacks()
         self.setupInstances()
 
     def createActions(self):
@@ -78,6 +77,7 @@ class WorkspaceWindow(MainWindow):
     def processZeroBackground(self):
         self.show_message("Zero background at: ", self.imagePath())
         self.progressBar.show()
+        self.blurryImage()
         self.taskZeroBackground.startEnhanceThread(self.imageInput())
 
     def setCustomBackground(self):
@@ -124,7 +124,7 @@ class WorkspaceWindow(MainWindow):
 
     def pasteImageArea(self):
         # image = self.readImageFile(self.imagePath())
-        image = self.workingImage()
+        image = self.imageOutput()
         box = self.selection_box
         # background = PIL.Image.new('RGB', size=(image.size[0], image.size[1]), color="gray")
         image_crop = image.crop(box)
