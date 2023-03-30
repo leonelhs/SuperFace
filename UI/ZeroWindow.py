@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QMenuBar,
 
 import utils
 from AI.TaskLowLight import TaskLowLight
-from AI.TaskSuperFace import TaskSuperFace
+from AI.TaskSuperFace import TaskSuperResolution
 from AI.TaskZeroBackground import TaskZeroBackground
 from Actions import Action, ActionRecents
 from Storage import Storage
@@ -164,7 +164,7 @@ class ZeroWindow(QMainWindow):
         print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
         args = (self.threadpool, self.enhanceDone, self.enhanceComplete, self.trackEnhanceProgress)
         self.storage = Storage()
-        self.superFace = TaskSuperFace(*args)
+        self.superFace = TaskSuperResolution(*args)
         self.zeroBackground = TaskZeroBackground(*args)
         self.lowLight = TaskLowLight(*args)
         self.appendFileRecents()

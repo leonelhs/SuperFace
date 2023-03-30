@@ -123,9 +123,15 @@ class MainWindow(QMainWindow):
 
         self.toolBox = ToolBoxEnhancer(self.main_splitter)
 
+        self.toolBox.addPage("face", u"Super Face")
+        self.toolBox.addPage("color", u"Super Colorize")
         self.toolBox.addPage("hires", u"Super Resolution")
         self.toolBox.addPage("zero", u"Zero Background")
         self.toolBox.addPage("light", u"Light Enhancement")
+
+        self.toolBox.addButton("face", "Restore faces", self.processSuperface)
+
+        self.toolBox.addButton("color", "Colorize", self.processSuperColorize)
 
         scale = self.toolBox.createWidget("hires", QComboBox)
         scale.addItems(["Scale 2X", "Scale 4X", "Scale 8X"])
@@ -219,6 +225,14 @@ class MainWindow(QMainWindow):
 
     @abstractmethod
     def processSuperResolution(self):
+        pass
+
+    @abstractmethod
+    def processSuperface(self):
+        pass
+
+    @abstractmethod
+    def processSuperColorize(self):
         pass
 
     @abstractmethod

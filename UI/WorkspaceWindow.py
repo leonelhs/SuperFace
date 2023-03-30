@@ -1,6 +1,8 @@
 from PySide6.QtCore import QThreadPool
 
 from AI.TaskLowLight import TaskLowLight
+from AI.TaskColorize import TaskColorize
+from AI.TaskSuperResolution import TaskSuperResolution
 from AI.TaskSuperFace import TaskSuperFace
 from AI.TaskZeroBackground import TaskZeroBackground
 from Actions import Action
@@ -21,7 +23,9 @@ class WorkspaceWindow(MainWindow):
         self.action_super_resolution = None
         self.taskLowLight = None
         self.taskZeroBackground = None
+        self.taskSuperResolution = None
         self.taskSuperFace = None
+        self.taskSuperColor = None
         self.threadpool = None
         # self.createActions()
         # self.setupCallbacks()
@@ -61,18 +65,30 @@ class WorkspaceWindow(MainWindow):
     def setupInstances(self):
         self.threadpool = QThreadPool()
         args = (self.threadpool, self.enhanceDone, self.enhanceComplete, self.trackEnhanceProgress)
-        self.taskSuperFace = TaskSuperFace(*args)
+        self.taskSuperResolution = TaskSuperResolution(*args)
         self.taskZeroBackground = TaskZeroBackground(*args)
         self.taskLowLight = TaskLowLight(*args)
+        self.taskSuperFace = TaskSuperFace(*args)
+        self.taskSuperColor = TaskColorize(*args)
 
     def processSuperResolution(self):
         self.show_message("Super resolution at: ", self.imagePath())
         self.progressBar.show()
+        self.taskSuperResolution.startEnhanceThread(self.imageInput())
+
+    def processSuperface(self):
+        self.show_message("Super face at: ", self.imagePath())
+        self.progressBar.show()
         self.taskSuperFace.startEnhanceThread(self.imageInput())
+
+    def processSuperColorize(self):
+        self.show_message("Super face at: ", self.imagePath())
+        self.progressBar.show()
+        self.taskSuperColor.startEnhanceThread(self.imageInput())
 
     def onHiresScaleChanged(self, index):
         scales = {0: 2, 1: 4, 2: 8}
-        self.taskSuperFace.loadModel(scales[index])
+        self.taskSuperResolution.loadModel(scales[index])
 
     def processZeroBackground(self):
         self.show_message("Zero background at: ", self.imagePath())
