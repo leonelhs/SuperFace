@@ -1,0 +1,7 @@
+conda install -c conda-forge pyside6
+conda install -c conda-forge pillow
+conda install -c conda-forge pytorch
+conda install -c conda-forge torchvision
+conda install -c conda-forge opencv
+conda install -c conda-forge scipy
+conda install -c conda-forge scikit-image

@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QToolBox, QWidget, QSizePolicy, QVBoxLayout, QLayout, QPushButton
 
 
-class ToolBoxEnhancer(QToolBox):
+class ToolBoxMaker(QToolBox):
     def __init__(self, parent):
         super().__init__(parent)
         self.sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
@@ -29,8 +29,10 @@ class ToolBoxEnhancer(QToolBox):
     def addButton(self, page, label, action=None):
         button = QPushButton(self.item(page))
         button.setText(label)
-        button.clicked.connect(action)
+        if action:
+            button.clicked.connect(action)
         self.page(page).addWidget(button)
+        return button
 
     def createWidget(self, page, widget):
         new_widget = widget(self.item(page))

@@ -1,7 +1,7 @@
 import os
 import sys
 import torch
-import logging4
+import logging
 import numpy as np
 from PIL import Image
 from RealESRGAN.rrdbnet_arch import RRDBNet
@@ -25,10 +25,6 @@ HF_MODELS = {
     ),
 }
 
-logger = logging4.Logger('SuperFace')
-formatter = '[[time]] - [[name]] - [[level_name]] - [[msg]]'
-logger.add_channel(filename=sys.stdout,  level=logging4.DEBUG, formatter=formatter)
-
 
 class TaskSuperResolution(TaskPhotoEnhancer):
 
@@ -46,7 +42,7 @@ class TaskSuperResolution(TaskPhotoEnhancer):
             num_block=23, num_grow_ch=32, scale=scale
         )
         self.load_weights(HF_MODELS[scale]["filename"], download=False)
-        logger.info("Model loaded to scale {0}X".format(self.scale))
+        logging.info("Model loaded to scale {0}X".format(self.scale))
 
     def load_weights(self, model_path, download=True):
         if not os.path.exists(model_path) and download:
@@ -56,7 +52,7 @@ class TaskSuperResolution(TaskPhotoEnhancer):
             local_filename = os.path.basename(model_path)
             config_file_url = hf_hub_url(repo_id=config['repo_id'], filename=config['filename'])
             cached_download(config_file_url, cache_dir=cache_dir, force_filename=local_filename)
-            logger.info("Weights downloaded to: {0}".format(os.path.join(cache_dir, local_filename)))
+            logging.info("Weights downloaded to: {0}".format(os.path.join(cache_dir, local_filename)))
 
         loadnet = torch.load(model_path)
         if 'params' in loadnet:

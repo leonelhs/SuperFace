@@ -1,4 +1,4 @@
-from UI.widgets.boundingBox import BoundingBox
+from UI.widgets.BoundingBox import BoundingBox
 
 
 class BoundingBoxRect(BoundingBox):
