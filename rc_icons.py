@@ -40,7 +40,7 @@ d=\x22g6926\x22\x0a      \
 ix(2.2666295,0,0\
 ,2.2666295,-190.\
 17821,-178.95779\
-)\x22\x0a       style=\
+)\x22\x0a       image-stylization-v1-256=\
 \x22fill:#2380c4;fi\
 ll-opacity:1;str\
 oke-width:0.0829\
@@ -146,7 +146,7 @@ v 0 l 1.5,0.8 0.\
  0.4,-0.1 0.6,-0\
 .1 0.6,0 0.7,0 z\
 \x22\x0a   id=\x22path692\
-2\x22\x0a   style=\x22fil\
+2\x22\x0a   image-stylization-v1-256=\x22fil\
 l:#2380c4;fill-o\
 pacity:1;stroke-\
 width:0.0829425;\
@@ -162,7 +162,7 @@ d\x22\x0a   d=\x22m 106.1\
 -3.5,-3.5 0,-1.9\
  1.6,-3.5 3.5,-3\
 .5 z\x22\x0a   id=\x22pat\
-h6924\x22\x0a   style=\
+h6924\x22\x0a   image-stylization-v1-256=\
 \x22fill:#2380c4;fi\
 ll-opacity:1;str\
 oke-width:0.0829\
@@ -238,7 +238,7 @@ v -46 -43.9 l -1\
 h 131.2 l 3.2,5.\
 8 v 77.7 z\x22\x0a   i\
 d=\x22path3138\x22\x0a   \
-style=\x22fill:#238\
+image-stylization-v1-256=\x22fill:#238\
 0c4;fill-opacity\
 :1\x22 />\x0a\x0a</g>\x0a  <\
 /g>\x0a</svg>\x0a\
@@ -315,7 +315,7 @@ ame=\x22g68.svg\x22\x0a  \
 port-xdpi=\x2296\x22\x0a \
       inkscape:e\
 xport-ydpi=\x2296\x22\x0a\
-       style=\x22fi\
+       image-stylization-v1-256=\x22fi\
 ll:#2380c4;fill-\
 opacity:1\x22>\x0a\x09<pa\
 th\x0a   class=\x22st0\
@@ -358,7 +358,7 @@ h 7.6 z m -13.9,\
  M 460.2,763 V 7\
 52.6 H 590.1 V 7\
 63 Z\x22\x0a   id=\x22pat\
-h66\x22\x0a   style=\x22f\
+h66\x22\x0a   image-stylization-v1-256=\x22f\
 ill:#2380c4;fill\
 -opacity:1\x22 />\x0a\x0a\
 </g>\x0a  </g>\x0a</sv\
@@ -430,7 +430,7 @@ m=\x22matrix(1.9784\
 661,0,0,1.978466\
 1,23.889563,-76.\
 856538)\x22\x0a       \
-style=\x22fill:#238\
+image-stylization-v1-256=\x22fill:#238\
 0c0;fill-opacity\
 :1\x22>\x0a\x09\x09<polygon\x0a\
    fill=\x22#4d4d4d\
@@ -454,7 +454,7 @@ yle=\x22fill:#2380c\
 z m 3.7,0 h -0.9\
  v -1.7 h 0.9 z\x22\
 \x0a   id=\x22path6870\
-\x22\x0a   style=\x22fill\
+\x22\x0a   image-stylization-v1-256=\x22fill\
 :#2380c0;fill-op\
 acity:1\x22 />\x0a\x0a\x09\x09\x0a\
 \x09\x09\x09<rect\x0a   x=\x224\
@@ -469,11 +469,11 @@ ansform=\x22matrix(\
 99999\x22\x0a   height\
 =\x220.69999999\x22\x0a  \
  id=\x22rect6872\x22\x0a \
-  style=\x22fill:#2\
+  image-stylization-v1-256=\x22fill:#2\
 380c0;fill-opaci\
 ty:1\x22 />\x0a\x0a\x09</g>\x0a\
     <path\x0a      \
- style=\x22fill:#23\
+ image-stylization-v1-256=\x22fill:#23\
 80c0;fill-opacit\
 y:1;stroke:#0000\
 00;stroke-width:\
@@ -521,7 +521,7 @@ h 6.01022 6.0102\
        transform\
 =\x22scale(0.264583\
 33)\x22 />\x0a    <pat\
-h\x0a       style=\x22\
+h\x0a       image-stylization-v1-256=\x22\
 fill:#2380c0;fil\
 l-opacity:1;stro\
 ke:#000000;strok\
@@ -537,7 +537,7 @@ e-width:0.570282\
        transform\
 =\x22scale(0.264583\
 33)\x22 />\x0a    <pat\
-h\x0a       style=\x22\
+h\x0a       image-stylization-v1-256=\x22\
 fill:#2380c0;fil\
 l-opacity:1;stro\
 ke:#000000;strok\
@@ -627,7 +627,7 @@ me=\x22g68.svg\x22\x0a   \
 ort-xdpi=\x2296\x22\x0a  \
      inkscape:ex\
 port-ydpi=\x2296\x22\x0a \
-      style=\x22fil\
+      image-stylization-v1-256=\x22fil\
 l:#2380c4;fill-o\
 pacity:1\x22>\x0a\x09<pat\
 h\x0a   class=\x22st0\x22\
@@ -670,7 +670,7 @@ h 6.3 z m 123.6,\
 M 460.2,763 V 75\
 2.6 H 590.1 V 76\
 3 Z\x22\x0a   id=\x22path\
-66\x22\x0a   style=\x22fi\
+66\x22\x0a   image-stylization-v1-256=\x22fi\
 ll:#2380c4;fill-\
 opacity:1\x22 />\x0a\x0a<\
 /g>\x0a  </g>\x0a</svg\
@@ -736,7 +736,7 @@ evenodd\x22\x0a   fill\
 0.5,0 -0.8,-0.4 \
 -0.8,-0.8 z\x22\x0a   \
 id=\x22path6902\x22\x0a  \
- style=\x22fill:#23\
+ image-stylization-v1-256=\x22fill:#23\
 80c3;fill-opacit\
 y:1\x22 />\x0a\x0a\x09\x09<poly\
 gon\x0a   fill-rule\
@@ -837,7 +837,7 @@ c 0,-0.4 0.2,-0.\
  0.3,-0.2 0.7,-0\
 .4 1.1,-0.4 z\x22\x0a \
   id=\x22path6908\x22\x0a\
-   style=\x22fill:#\
+   image-stylization-v1-256=\x22fill:#\
 2380c3;fill-opac\
 ity:1\x22 />\x0a\x0a\x09\x09<pa\
 th\x0a   fill-rule=\
@@ -854,7 +854,7 @@ v 3.6 h -5.2 v -\
 .1,0.4 0.4,0 0.8\
 ,-0.1 1.1,-0.4\x22\x0a\
    id=\x22path6910\x22\
-\x0a   style=\x22fill:\
+\x0a   image-stylization-v1-256=\x22fill:\
 #2380c3;fill-opa\
 city:1\x22 />\x0a\x0a\x09\x09<p\
 ath\x0a   fill-rule\
@@ -870,7 +870,7 @@ ip-rule=\x22evenodd\
  -0.1,-1.1 0.8,-\
 1.9 1.9,-1.9\x22\x0a  \
  id=\x22path6912\x22\x0a \
-  style=\x22fill:#2\
+  image-stylization-v1-256=\x22fill:#2\
 380c3;fill-opaci\
 ty:1\x22 />\x0a\x0a\x09</g>\x0a\
   </g>\x0a</svg>\x0a\

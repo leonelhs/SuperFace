@@ -7,5 +7,7 @@ images
 .images.db
 .thumbnails.db
 __pycache__
+.DS_Store
+../.DS_Store
 
 

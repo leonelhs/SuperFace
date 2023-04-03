@@ -1,8 +1,17 @@
-import os
-import sys
-import torch
+#############################################################################
+#
+#   Source from:
+#   https://github.com/leonelhs/Real-ESRGAN-1
+#   Forked from:
+#   https://github.com/ai-forever/Real-ESRGAN
+#   Reimplemented by: Leonel Hernández
+#
+##############################################################################
 import logging
+import os
+
 import numpy as np
+import torch
 from PIL import Image
 from RealESRGAN.rrdbnet_arch import RRDBNet
 from RealESRGAN.utils import pad_reflect, split_image_into_overlapping_patches, stich_together, unpad_image

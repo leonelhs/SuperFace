@@ -23,7 +23,7 @@ class Action(QAction):
         self.callback()
 
 
-class ActionRecents(QAction):
+class ActionResents(QAction):
     def __init__(self, window, recent, visible_in_menu=False):
         super().__init__(window)
         self.callback = None

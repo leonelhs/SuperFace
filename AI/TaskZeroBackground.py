@@ -1,3 +1,12 @@
+#############################################################################
+#
+#   Source from:
+#   https://huggingface.co/spaces/eugenesiow/remove-bg
+#   Forked from:
+#   https://huggingface.co/spaces/eugenesiow/remove-bg
+#   Reimplemented by: Leonel Hernández
+#
+##############################################################################
 import PIL
 import cv2
 import numpy as np

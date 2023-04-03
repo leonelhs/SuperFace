@@ -1,3 +1,14 @@
+#############################################################################
+#
+#   Source from:
+#   https://github.com/leonelhs/neural-colorization
+#   Forked from:
+#   https://github.com/zeruniverse/neural-colorization
+#   Reimplemented by: Leonel Hernández
+#
+##############################################################################
+
+
 import PIL.Image
 import cv2
 import numpy as np

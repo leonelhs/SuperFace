@@ -1,8 +1,8 @@
-from PySide6.QtCore import (QCoreApplication, QMetaObject, Qt)
+from PySide6.QtCore import (QMetaObject, Qt)
 from PySide6.QtWidgets import (QSplitter)
 
 import utils
-from Actions import ActionRecents
+from Actions import ActionResents
 from Storage import Storage
 from UI.MainMenu import MainMenu
 from UI.ToolBoxEnhancer import ToolBoxEnhancer
@@ -32,19 +32,26 @@ class FrameWindow(BaseWindow):
         self.splitter.addWidget(self.twinViewer)
         self.mainLayout().addWidget(self.splitter)
         self.menubar = MainMenu(main_window)
+
+        self.menubar.actionOpen(self.openFile)
+        self.menubar.actionSave(self.saveFile)
+
         QMetaObject.connectSlotsByName(main_window)
 
     def loadResentFiles(self):
         resents = self.storage.fetchRecents()
         for recent in resents:
-            action = ActionRecents(self, recent[0])
+            action = ActionResents(self, recent[0])
             action.setCallback(self.displayPhoto)
             self.menubar.menuRecent.addAction(action)
 
     def displayPhoto(self, image_path):
-        self.image_path = image_path
-        image = utils.imageOpen(image_path)
-        self.twinViewer.displayInput(image)
+        try:
+            self.image_path = image_path
+            image = utils.imageOpen(image_path)
+            self.twinViewer.displayInput(image)
+        except FileNotFoundError:
+            self.showMessage("file not found at: ", image_path)
 
     def openFile(self):
         image_path = self.launchDialogOpenFile()

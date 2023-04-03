@@ -1,3 +1,12 @@
+#############################################################################
+#
+#   Source from:
+#   https://github.com/Li-Chongyi/Zero-DCE/
+#   Forked from:
+#   https://github.com/Li-Chongyi/Zero-DCE/
+#   Reimplemented by: Leonel Hernández
+#
+##############################################################################
 import PIL.Image
 import numpy as np
 import torch

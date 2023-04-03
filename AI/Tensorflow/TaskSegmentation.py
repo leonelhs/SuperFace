@@ -1,3 +1,12 @@
+#############################################################################
+#
+#   Source from:
+#   https://keras.io/examples/vision/deeplabv3_plus/
+#   Forked from:
+#   https://keras.io/examples/vision/deeplabv3_plus/
+#   Reimplemented by: Leonel Hernández
+#
+##############################################################################
 import PIL.Image
 import cv2
 import numpy as np
@@ -6,9 +15,7 @@ from keras.models import load_model
 
 from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
 
-deeplabv3p_01 = '../models/deeplabv3p-resnet50'
-
-model = load_model(deeplabv3p_01)
+model_path = './models/deeplabv3p-resnet50'
 
 colormap = np.array([[0, 0, 0], [31, 119, 180], [44, 160, 44], [44, 127, 125], [52, 225, 143],
                      [217, 222, 163], [254, 128, 37], [130, 162, 128], [121, 7, 166], [136, 183, 248],
@@ -17,14 +24,6 @@ colormap = np.array([[0, 0, 0], [31, 119, 180], [44, 160, 44], [44, 127, 125], [
                     dtype=np.uint8)
 
 img_size = 512
-
-
-def read_image(image):
-    image = tf.io.read_file(image)
-    image = tf.image.decode_jpeg(image)
-    image = tf.image.resize(images=image, size=[img_size, img_size])
-    image = image / 127.5 - 1
-    return image
 
 
 def infer(model, image_tensor):
@@ -54,18 +53,17 @@ def get_overlay(image, colored_mask):
     return overlay
 
 
-def segmentation(input_image):
-    image_tensor = read_image(input_image)
-    prediction_mask = infer(image_tensor=image_tensor, model=model)
-    prediction_colormap = decode_segmentation_masks(prediction_mask, colormap, 20)
-    overlay = get_overlay(image_tensor, prediction_colormap)
-    return overlay, prediction_colormap
-
-
 class TaskSegmentation(TaskPhotoEnhancer):
 
     def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
         super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+        self.model = load_model(model_path)
 
     def executeEnhanceWork(self, image, progress_callback):
-        pass
+        image = tf.convert_to_tensor(image)
+        image = tf.image.resize(images=image, size=[img_size, img_size])
+        image = image / 127.5 - 1
+        prediction_mask = infer(image_tensor=image, model=self.model)
+        prediction_colormap = decode_segmentation_masks(prediction_mask, colormap, 20)
+        overlay = get_overlay(image, prediction_colormap)
+        return PIL.Image.fromarray(overlay)
