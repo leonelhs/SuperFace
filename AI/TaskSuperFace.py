@@ -11,13 +11,13 @@ import PIL.Image
 import numpy as np
 
 from AI.gfpgan.NewGFPGAN import NewGFPGAN
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 
 class TaskSuperFace(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.model_path = "./models/GFPGAN/GFPGANv1.4.pth"
         self.restorer = self.loadModel()
 

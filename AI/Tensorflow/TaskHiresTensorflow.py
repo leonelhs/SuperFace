@@ -9,13 +9,13 @@
 import PIL.Image
 from ISR.models import RDN
 
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 
 class TaskHiresTensorflow(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.model = RDN(weights='psnr-small')
 
     def executeEnhanceWork(self, image, progress_callback):

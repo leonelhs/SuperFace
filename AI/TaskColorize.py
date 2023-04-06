@@ -17,15 +17,15 @@ from scipy.ndimage import zoom
 from skimage.color import rgb2yuv, yuv2rgb
 from torch.autograd import Variable
 from AI.colorize.model import generator
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 model_path = "./models/colorize.pth"
 
 
 class TaskColorize(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.gen = generator()
         self.gen.load_state_dict(torch.load(model_path, map_location=device))

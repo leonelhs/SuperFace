@@ -70,8 +70,8 @@ def hair(image, parsing, part=17, color=[230, 50, 20]):
 
 
 class TaskFaceMakeup(TaskFaceParser):
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
 
     def executeEnhanceWork(self, image, progress_callback):
         parsing, png, jpg = self.parseFace(image)

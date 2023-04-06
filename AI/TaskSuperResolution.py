@@ -17,7 +17,7 @@ from RealESRGAN.rrdbnet_arch import RRDBNet
 from RealESRGAN.utils import pad_reflect, split_image_into_overlapping_patches, stich_together, unpad_image
 from huggingface_hub import hf_hub_url, cached_download
 
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 HF_MODELS = {
     2: dict(
@@ -37,8 +37,8 @@ HF_MODELS = {
 
 class TaskSuperResolution(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.model = None
         self.scale = None
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

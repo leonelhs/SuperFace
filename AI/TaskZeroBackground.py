@@ -14,7 +14,7 @@ import torch
 from PIL.Image import Image
 from torchvision import transforms
 
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 
 def make_transparent_foreground(image, mask):
@@ -35,8 +35,8 @@ def make_transparent_foreground(image, mask):
 
 class TaskZeroBackground(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.final_foreground = None
         self.model = torch.hub.load('pytorch/vision:v0.6.0', 'deeplabv3_resnet101', pretrained=True)
         self.model.eval()

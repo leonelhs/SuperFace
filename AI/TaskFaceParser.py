@@ -14,7 +14,7 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 from .faceparser.model import BiSeNet
 
 
@@ -53,8 +53,8 @@ model_path = './models/faceparser/79999_iter.pth'
 
 class TaskFaceParser(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.net = BiSeNet(n_classes=19)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.net.load_state_dict(torch.load(model_path, map_location=device))

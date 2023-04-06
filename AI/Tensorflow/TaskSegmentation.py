@@ -13,7 +13,7 @@ import numpy as np
 import tensorflow as tf
 from keras.models import load_model
 
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 model_path = './models/deeplabv3p-resnet50'
 
@@ -55,8 +55,8 @@ def get_overlay(image, colored_mask):
 
 class TaskSegmentation(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.model = load_model(model_path)
 
     def executeEnhanceWork(self, image, progress_callback):

@@ -16,7 +16,7 @@ from retinaface import RetinaFace
 from skimage import transform as trans
 
 from AI.baldgan.model import buildModel
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -88,8 +88,8 @@ model_path = './models/faces_bald_InsNorm_4x4_D2/model_G_5_170.hdf5'
 
 class TaskBaldFace(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.model = buildModel()
         self.model.load_weights(model_path)
 

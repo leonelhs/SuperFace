@@ -4,9 +4,16 @@ from PySide6.QtWidgets import QSplitter, QGraphicsScene
 from UI.widgets.ImageGraphicsView import ImageGraphicsView
 
 
+def toPixmap(image):
+    if "PIL.Image" in str(image.__class__):
+        return image.toqpixmap()
+    return image
+
+
 def displayImage(image, scene, graphics):
     scene.clear()
-    scene.addPixmap(image.toqpixmap())
+    image = toPixmap(image)
+    scene.addPixmap(image)
     graphics.setScene(scene)
     graphics.setEnabled(True)
     graphics.redraw()
@@ -56,3 +63,12 @@ class TwinViewer(QSplitter):
 
     def imageInput(self):
         return self.__imageInput
+
+    def imageFilter(self, image_filter, args):
+        image = self.imageInput().filter(image_filter(*args))
+        self.displayOutput(image)
+
+    def applyFilter(self):
+        self.displayInput(self.imageOutput())
+
+

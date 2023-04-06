@@ -8,10 +8,10 @@
 ##############################################################################
 
 import PIL.Image
-import numpy as np
+import test as np
 import tensorflow as tf
 
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 print("TF Version: ", tf.__version__)
 print("Eager mode enabled: ", tf.executing_eagerly())
@@ -53,8 +53,8 @@ model_path = "./models/image-stylization-v1-256"
 
 class TaskStyleTransfer(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.model = tf.saved_model.load(model_path)
         self.content_image = None
         self.style_image = None

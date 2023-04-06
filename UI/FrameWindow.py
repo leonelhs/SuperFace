@@ -1,9 +1,9 @@
 from PySide6.QtCore import (QMetaObject, Qt)
 from PySide6.QtWidgets import (QSplitter)
 
-import utils
-from Actions import ActionResents
-from Storage import Storage
+from Helpers import utils
+from Helpers.Actions import ActionResents
+from Helpers.Storage import Storage
 from UI.MainMenu import MainMenu
 from UI.ToolBoxEnhancer import ToolBoxEnhancer
 from UI.widgets.BaseWindow import BaseWindow
@@ -66,8 +66,9 @@ class FrameWindow(BaseWindow):
             self.twinViewer.imageOutput().save(image_path, "PNG")
 
     def trackTaskProgress(self, progress):
-        self.progressBar.setValue(progress)
-        self.showMessage("Scanning gallery completed: ", progress)
+        self.twinViewer.displayOutput(progress)
+        # self.progressBar.setValue(progress)
+        # self.showMessage("Scanning gallery completed: ", progress)
 
     def taskDone(self, image_result):
         self.enhanced_image = image_result.copy()

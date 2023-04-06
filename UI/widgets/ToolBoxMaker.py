@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QToolBox, QWidget, QSizePolicy, QVBoxLayout, QLayout, QPushButton
+from PySide6.QtWidgets import QToolBox, QWidget, QSizePolicy, QVBoxLayout, QLayout, QPushButton, QFileDialog
 
 
 class ToolBoxMaker(QToolBox):
@@ -26,11 +26,18 @@ class ToolBoxMaker(QToolBox):
     def page(self, name):
         return self.__pages[name]
 
-    def addButton(self, page, label, action=None):
+    def addButton(self, page, label, action=None, args=None):
         button = QPushButton(self.item(page))
         button.setText(label)
         if action:
-            button.clicked.connect(action)
+            def callback():
+                if args:
+                    action(args)
+                else:
+                    action()
+
+            button.clicked.connect(callback)
+
         self.page(page).addWidget(button)
         return button
 
@@ -43,3 +50,9 @@ class ToolBoxMaker(QToolBox):
         new_layout = layout(self.item(page))
         self.page(page).addLayout(new_layout)
         return new_layout
+
+    def launchDialogOpenFile(self, title="Open Image"):
+        return QFileDialog.getOpenFileName(self, title)[0]
+
+    def launchDialogSaveFile(self, title="Save Image"):
+        return QFileDialog.getSaveFileName(self, title)[0]

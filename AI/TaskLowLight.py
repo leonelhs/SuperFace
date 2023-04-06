@@ -14,15 +14,15 @@ import torch.optim
 from torchvision.utils import make_grid
 
 from AI.illuminate import model
-from Tasks.TaskPhotoEnhancer import TaskPhotoEnhancer
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 model_path = "./models/snapshots/Epoch99.pth"
 
 
 class TaskLowLight(TaskPhotoEnhancer):
 
-    def __init__(self, threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress):
-        super().__init__(threadpool, enhanceDone, enhanceComplete, trackEnhanceProgress)
+    def __init__(self, args):
+        super().__init__(args)
         self.DCE_net = model.enhance_net_nopool().cpu()
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         state = torch.load(model_path, map_location=device)

@@ -1,12 +1,20 @@
-import sys
-
+#############################################################################
+#
+#   Source from:
+#   https://www.tensorflow.org/hub/tutorials/movenet
+#   Forked from:
+#   https://www.tensorflow.org/hub/tutorials/movenet
+#   Reimplemented by: Leonel Hernández
+#
+##############################################################################
 import PIL.Image
 import PIL.ImageOps
 import numpy as np
 import tensorflow as tf
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPainter, QColor, QPen
-from PySide6.QtWidgets import QMainWindow, QLabel, QApplication
+from PySide6.QtGui import QPen, QColor, QPainter
+
+from Helpers.TaskPhotoEnhancer import TaskPhotoEnhancer
 
 # Dictionary that maps from joint names to keypoint indices.
 KEYPOINT_DICT = {
@@ -20,7 +28,6 @@ KEYPOINT_DICT = {
     'left_knee': 13, 'right_knee': 14,
     'left_ankle': 15, 'right_ankle': 16
 }
-
 
 COLOR_DICT = {
     (0, 1): 'Magenta',
@@ -44,7 +51,7 @@ COLOR_DICT = {
 }
 
 
-def process_keypoints(keypoints, height, width, threshold=0.22):
+def process_keypoints(keypoints, height, width, threshold=0.11):
     """Returns high confidence keypoints and edges for visualization.
 
       Args:
@@ -113,62 +120,43 @@ def draw_bones(pixmap, height, width, keypoints):
         painter.drawEllipse(c_x - radio, c_y - radio, radio * 2, radio * 2)
 
 
-def movenet(image):
-    """Runs detection on an input image.
-
-        Args:
-          image: A [1, height, width, 3] tensor represents the input image
-            pixels. Note that the height/width should already be resized and match the
-            expected input resolution of the model before passing into this function.
-
-        Returns:
-          A [1, 1, 17, 3] float numpy array representing the predicted keypoint
-          coordinates and scores.
-    """
-    model_path = "./models/movenet"
-    module = tf.saved_model.load(model_path)
-    model = module.signatures['serving_default']
-    # SavedModel format expects tensor type of int32.
-    image = tf.cast(image, dtype=tf.int32)
-    # Run model inference.
-    outputs = model(image)
-    # Output is a [1, 1, 17, 3] tensor.
-    keypoints_with_scores = outputs['output_0'].numpy()
-    return keypoints_with_scores
+input_size = 256
+model_path = "./models/movenet"
 
 
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        picture = QLabel()
-        input_size = 256
+class TaskEstimatePose(TaskPhotoEnhancer):
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.model = tf.saved_model.load(model_path).signatures['serving_default']
+
+    def movenet(self, image):
+        """Runs detection on an input image.
+
+            Args:
+              image: A [1, height, width, 3] tensor represents the input image
+                pixels. Note that the height/width should already be resized and match the
+                expected input resolution of the model before passing into this function.
+
+            Returns:
+              A [1, 1, 17, 3] float numpy array representing the predicted keypoint
+              coordinates and scores.
+        """
+        image = tf.cast(image, dtype=tf.int32)
+        outputs = self.model(image)
+        return outputs['output_0'].numpy()
+
+    def executeEnhanceWork(self, image_path, progress_callback):
         size = (1280, 1280)
-        # image_path = '/Users/leonel/running.jpeg'
-        image_path = '/Users/leonel/imagen_original.jpg'
         image = tf.io.read_file(image_path)
         image = tf.image.decode_jpeg(image)
-        # Resize and pad the image to keep the aspect ratio and fit the expected size.
         input_image = tf.expand_dims(image, axis=0)
         input_image = tf.image.resize_with_pad(input_image, input_size, input_size)
-        keypoints = movenet(input_image)
-        keypoints = np.array(keypoints)
+        keypoints = self.movenet(input_image)
         # Visualize the predictions with image.
         image = PIL.Image.open(image_path)
+        # Fixme: accurate match bones and image
         image = PIL.ImageOps.fit(image, size, PIL.Image.LANCZOS)
-        height = image.height
-        width = image.width
         pixmap = image.toqpixmap()
-        draw_bones(pixmap, height, width, keypoints)
-        picture.setPixmap(pixmap)
-        picture.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
-        self.setCentralWidget(picture)
-
-
-def main():
-    app = QApplication(sys.argv)
-    w = MainWindow()
-    w.show()
-    app.exec()
-
-
-main()
+        draw_bones(pixmap, size, keypoints)
+        return pixmap
