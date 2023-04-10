@@ -154,9 +154,11 @@ class TaskEstimatePose(TaskPhotoEnhancer):
         input_image = tf.image.resize_with_pad(input_image, input_size, input_size)
         keypoints = self.movenet(input_image)
         # Visualize the predictions with image.
-        image = PIL.Image.open(image_path)
         # Fixme: accurate match bones and image
+        image = PIL.Image.open(image_path)
         image = PIL.ImageOps.fit(image, size, PIL.Image.LANCZOS)
+        height = image.height
+        width = image.width
         pixmap = image.toqpixmap()
-        draw_bones(pixmap, size, keypoints)
+        draw_bones(pixmap, height, width, keypoints)
         return pixmap

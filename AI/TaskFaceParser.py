@@ -74,9 +74,9 @@ class TaskFaceParser(TaskPhotoEnhancer):
                 img = img.cuda()
             out = self.net(img)[0]
             parsing = out.squeeze(0).cpu().numpy().argmax(0)
-            png, jpg = vis_parsing_maps(image, parsing)
-            return parsing, png, jpg
+            dark_mask, color_mask = vis_parsing_maps(image, parsing)
+            return parsing, dark_mask, color_mask
 
     def executeEnhanceWork(self, image, progress_callback):
-        parsing, png, jpg = self.parseFace(image)
-        return PIL.Image.fromarray(jpg)
+        parsing, dark_mask, color_mask = self.parseFace(image)
+        return PIL.Image.fromarray(color_mask)

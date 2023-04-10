@@ -7,10 +7,9 @@
 #   Reimplemented by: Leonel Hernández
 #
 ##############################################################################
-import cv2
 import PIL.Image
+import cv2
 import numpy as np
-import logging
 from skimage.filters import gaussian
 
 from AI.TaskFaceParser import TaskFaceParser
@@ -18,7 +17,7 @@ from AI.TaskFaceParser import TaskFaceParser
 
 def sharpen(img):
     img = img * 1.0
-    gauss_out = gaussian(img, sigma=5, multichannel=True)
+    gauss_out = gaussian(img, sigma=5)
 
     alpha = 1.5
     img_out = (img - gauss_out) * alpha + img
@@ -58,7 +57,7 @@ def hair(image, parsing, part=17, color=[230, 50, 20]):
     try:
         changed[parsing != part] = image[parsing != part]
     except IndexError:
-        logging.error("Not able to parse face")
+        raise Exception("Not able to parse face")
     return changed
 
 
@@ -74,7 +73,7 @@ class TaskFaceMakeup(TaskFaceParser):
         super().__init__(args)
 
     def executeEnhanceWork(self, image, progress_callback):
-        parsing, png, jpg = self.parseFace(image)
+        parsing, dark_mask, color_mask = self.parseFace(image)
         image = np.array(image)
         parsing = cv2.resize(parsing, image.shape[0:2], interpolation=cv2.INTER_NEAREST)
 

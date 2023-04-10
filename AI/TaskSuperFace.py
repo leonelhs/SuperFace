@@ -19,6 +19,7 @@ class TaskSuperFace(TaskPhotoEnhancer):
     def __init__(self, args):
         super().__init__(args)
         self.model_path = "./models/GFPGAN/GFPGANv1.4.pth"
+        # self.model_path = "./models/GFPGAN/GFPGANv1.3.pth"
         self.restorer = self.loadModel()
 
     def loadModel(self, upscale=2, arch="clean", channel_multiplier=2, bg_upsampler=None):

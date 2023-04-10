@@ -1,7 +1,8 @@
+# TaskSuperFace
 import os
 
 import torch
-from facexlib import load_file_from_url
+from basicsr.utils.download_util import load_file_from_url
 from facexlib.utils.face_restoration_helper import FaceRestoreHelper
 from gfpgan import GFPGANer, GFPGANv1Clean, GFPGANBilinear, GFPGANv1
 
@@ -73,7 +74,7 @@ class NewGFPGAN(GFPGANer):
 
         if model_path.startswith('https://'):
             model_path = load_file_from_url(
-                url=model_path, model_dir=os.path.join(ROOT_DIR, 'models/GFPGAN/weights'), progress=True, file_name=None)
+                url=model_path, model_dir=os.path.join(ROOT_DIR, 'gfpgan/weights'), progress=True, file_name=None)
         loadnet = torch.load(model_path)
         if 'params_ema' in loadnet:
             keyname = 'params_ema'

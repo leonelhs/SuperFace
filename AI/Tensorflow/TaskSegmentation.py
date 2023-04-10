@@ -8,6 +8,7 @@
 #
 ##############################################################################
 import PIL.Image
+from PIL import Image as Image
 import cv2
 import numpy as np
 import tensorflow as tf
@@ -26,11 +27,8 @@ colormap = np.array([[0, 0, 0], [31, 119, 180], [44, 160, 44], [44, 127, 125], [
 img_size = 512
 
 
-def infer(model, image_tensor):
-    predictions = model.predict(np.expand_dims((image_tensor), axis=0))
-    predictions = np.squeeze(predictions)
-    predictions = np.argmax(predictions, axis=2)
-    return predictions
+def array2image(ndarray):
+    return PIL.Image.fromarray(np.uint8(ndarray)).convert('RGB')
 
 
 def decode_segmentation_masks(mask, colormap, n_classes):
@@ -59,11 +57,20 @@ class TaskSegmentation(TaskPhotoEnhancer):
         super().__init__(args)
         self.model = load_model(model_path)
 
-    def executeEnhanceWork(self, image, progress_callback):
+    def infer(self, image_tensor):
+        predictions = self.model.predict(np.expand_dims(image_tensor, axis=0))
+        predictions = np.squeeze(predictions)
+        predictions = np.argmax(predictions, axis=2)
+        return predictions
+
+    def executeEnhanceWork(self, image: Image, progress_callback):
+        progress_callback.emit(".")
         image = tf.convert_to_tensor(image)
         image = tf.image.resize(images=image, size=[img_size, img_size])
         image = image / 127.5 - 1
-        prediction_mask = infer(image_tensor=image, model=self.model)
+        prediction_mask = self.infer(image_tensor=image)
         prediction_colormap = decode_segmentation_masks(prediction_mask, colormap, 20)
         overlay = get_overlay(image, prediction_colormap)
-        return PIL.Image.fromarray(overlay)
+        color_mask = array2image(prediction_colormap)
+        overlay = Image.fromarray(overlay)
+        return overlay, color_mask

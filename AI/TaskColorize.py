@@ -7,8 +7,6 @@
 #   Reimplemented by: Leonel Hernández
 #
 ##############################################################################
-
-
 import PIL.Image
 import cv2
 import numpy as np

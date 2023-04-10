@@ -1,6 +1,7 @@
 import logging
-from PIL import ImageFilter
+
 from PySide6.QtCore import QThreadPool
+
 from ToolsetAI import ToolsetAI
 from ToolsetFilters import ToolsetFilters
 from UI.FrameWindow import FrameWindow
@@ -45,7 +46,6 @@ class MainWindow(FrameWindow):
         image_crop = image.crop(box)
         # background.paste(image_crop, (box[0], box[1]))
         self.twinViewer.displayOutput(image_crop)
-        self.processHiresPytorch()
 
     def onBoundingResizeEvent(self, rect):
         left = int(rect.left())
@@ -56,4 +56,3 @@ class MainWindow(FrameWindow):
 
     def getImagePath(self):
         return self.image_path
-

@@ -1,8 +1,6 @@
 import qtawesome as qta
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QWidget, QVBoxLayout, QStatusBar
 
-from UI.widgets.LoadingProgressBar import LoadingProgressBar
-
 
 class BaseWindow(QMainWindow):
 
@@ -14,15 +12,9 @@ class BaseWindow(QMainWindow):
         self.setWindowTitle("Super Face")
         self.central_widget = QWidget(self)
         self.main_layout = QVBoxLayout(self.central_widget)
-        self.createProgressBar()
         self.statusbar = QStatusBar(self)
         self.setStatusBar(self.statusbar)
         self.setCentralWidget(self.central_widget)
-
-    def createProgressBar(self):
-        self.progressBar = LoadingProgressBar()
-        self.progressBar.hide()
-        self.main_layout.addWidget(self.progressBar)
 
     def mainWidget(self):
         return self.central_widget

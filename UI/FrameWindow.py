@@ -7,6 +7,7 @@ from Helpers.Storage import Storage
 from UI.MainMenu import MainMenu
 from UI.ToolBoxEnhancer import ToolBoxEnhancer
 from UI.widgets.BaseWindow import BaseWindow
+from UI.widgets.LoadingProgressBar import LoadingProgressBar
 from UI.widgets.TwinViewer import TwinViewer
 
 
@@ -35,6 +36,9 @@ class FrameWindow(BaseWindow):
 
         self.menubar.actionOpen(self.openFile)
         self.menubar.actionSave(self.saveFile)
+        self.progressBar = LoadingProgressBar()
+        self.progressBar.hide()
+        self.main_layout.addWidget(self.progressBar)
 
         QMetaObject.connectSlotsByName(main_window)
 

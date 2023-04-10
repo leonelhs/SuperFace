@@ -7,7 +7,7 @@
 #   Reimplemented by: Leonel Hernández
 #
 ##############################################################################
-import test as np
+import numpy as np
 import face_recognition
 from PySide6.QtGui import QPainter, QColor
 from face_recognition import face_landmarks

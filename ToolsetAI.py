@@ -1,3 +1,5 @@
+from AI.Pytorch.TaskEraseScratches import TaskEraseScratches
+from AI.Pytorch.TaskMaskScratches import TaskMaskScratches
 from AI.TaskColorize import TaskColorize
 from AI.TaskFaceMakeup import TaskFaceMakeup
 from AI.TaskFaceParser import TaskFaceParser
@@ -20,6 +22,8 @@ from Toolset import Toolset
 class ToolsetAI(Toolset):
     def __init__(self, args):
         super().__init__(args)
+        self.taskEraseScratches = None
+        self.taskMaskScratches = None
         self.taskEstimatePose = None
         self.taskRetinaFace = None
         self.taskInterpolateVectors = None
@@ -110,15 +114,15 @@ class ToolsetAI(Toolset):
         self.taskLowLight = self.newInstance("light", TaskLowLight)
         self.taskLowLight.startEnhanceThread(self.twinViewer.imageInput())
 
-    def processSegmentation(self):
-        self.preInit("Segmented image at:")
-        self.taskSegmentation = self.newInstance("segment", TaskSegmentation)
-        self.taskSegmentation.startEnhanceThread(self.twinViewer.imageInput())
-
     def processBaldFace(self):
         self.preInit("Bald face image at:")
         self.taskBaldFace = self.newInstance("bald", TaskBaldFace)
         self.taskBaldFace.startEnhanceThread(self.twinViewer.imageInput())
+
+    def processSegmentation(self):
+        self.preInit("Segmented image at:")
+        self.taskSegmentation = self.newInstance("segment", TaskSegmentation)
+        self.taskSegmentation.startEnhanceThread(self.twinViewer.imageInput())
 
     def processFaceParser(self):
         self.preInit("Parse face image at:")
@@ -141,9 +145,26 @@ class ToolsetAI(Toolset):
         self.taskRetinaFace.startEnhanceThread(self.twinViewer.imageInput())
 
     def processEstimatePose(self):
-        self.preInit("Draw face landmarks at: ")
+        self.preInit("Estimate pose at: ")
         self.taskEstimatePose = self.newInstance("pose", TaskEstimatePose)
         self.taskEstimatePose.startEnhanceThread(self.getImagePath())
+
+    def processMaskScratches(self):
+        self.preInit("Building scratches mask at: ")
+        self.taskMaskScratches = self.newInstance("mask", TaskMaskScratches)
+
+        def taskMaskDone(image_result):
+            self.twinViewer.displayInput(image_result[0])
+            self.twinViewer.displayOutput(image_result[1])
+
+        self.taskMaskScratches.enhanceDone = taskMaskDone
+        self.taskMaskScratches.startEnhanceThread(self.twinViewer.imageInput())
+
+    def processEraseScratches(self):
+        self.preInit("Erasing scratches from mask")
+        self.taskEraseScratches = self.newInstance("erase", TaskEraseScratches)
+        images = (self.twinViewer.imageInput(), self.twinViewer.imageOutput())
+        self.taskEraseScratches.startEnhanceThread(images)
 
     def onHiresScaleChanged(self, index):
         scales = {0: 2, 1: 4, 2: 8}
