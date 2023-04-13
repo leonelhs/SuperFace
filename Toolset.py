@@ -2,7 +2,6 @@ class Toolset:
     def __init__(self, args):
         self.args = args
         self.__instances = {}
-        self.getImagePath = None
         self.progressBar = None
         self.showMessage = None
         self.twinViewer = None
@@ -16,8 +15,7 @@ class Toolset:
         self.progressBar = controls[0]
         self.showMessage = controls[1]
         self.twinViewer = controls[2]
-        self.getImagePath = controls[3]
 
     def preInit(self, message):
-        self.showMessage(message, self.getImagePath())
+        self.showMessage("", message)
         self.progressBar.show()

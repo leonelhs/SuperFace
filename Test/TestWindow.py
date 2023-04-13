@@ -39,4 +39,4 @@ class TestWindow(QMainWindow):
         self.picture.setPixmap(pixmap)
 
     def runTest(self):
-        self.testTask.runTest(self.image_test)
+        self.testTask.runRemoteTask(self.image_test)

@@ -9,6 +9,7 @@ class ToolBoxEnhancer(ToolBoxMaker):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self.addPage("fast", u"Fast Operations")
         self.addPage("filters", u"Image filters")
         self.addPage("convolution", u"Convolution filter")
         self.addPage("face", u"Super Face")
@@ -28,6 +29,17 @@ class ToolBoxEnhancer(ToolBoxMaker):
         self.setCurrentIndex(0)
         self.toolset_ai = None
         self.toolset_filters = None
+        self.toolset_fast = None
+
+    def buildFastPage(self):
+        self.addButton("fast", "Parse face", self.toolset_fast.processParseFace)
+        self.addButton("fast", "Erase area", self.toolset_fast.processEraseArea)
+        self.addButton("fast", "Make alpha", self.toolset_fast.processMakeAlpha)
+        self.addButton("fast", "Undo erase", self.toolset_fast.processParseReset)
+
+    def buildPageFilters(self):
+        self.pageFilters()
+        self.pageConvolution()
 
     def buildPages(self):
         self.addButton("face", "Restore faces", self.toolset_ai.processSuperface)
@@ -42,8 +54,7 @@ class ToolBoxEnhancer(ToolBoxMaker):
         self.pageSuperResolution()
         self.pageStyleTransfer()
         self.pageDelf()
-        self.pageFilters()
-        self.pageConvolution()
+
         self.pageZeroBackground()
 
     def pageZeroBackground(self):

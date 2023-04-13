@@ -8,26 +8,30 @@ class ToolsetFilters(Toolset):
         super().__init__(args)
 
     def onSliderBlurChanged(self, radius):
-        self.twinViewer.imageFilter(ImageFilter.GaussianBlur, (radius,))
+        image = self.twinViewer.left.filter(ImageFilter.GaussianBlur, (radius,))
+        self.twinViewer.right.display(image)
         self.showMessage("Filter Blur radius: ", radius)
 
     def onSliderBoxBlurChanged(self, radius):
-        self.twinViewer.imageFilter(ImageFilter.BoxBlur, (radius,))
+        image = self.twinViewer.left.filter(ImageFilter.BoxBlur, (radius,))
+        self.twinViewer.right.display(image)
         self.showMessage("Filter Box Blur radius: ", radius)
 
     def onSliderUnsharpMaskChanged(self, radius):
-        self.twinViewer.imageFilter(ImageFilter.UnsharpMask, (radius, 150, 3))
+        image = self.twinViewer.left.filter(ImageFilter.UnsharpMask, (radius, 150, 3))
+        self.twinViewer.right.display(image)
         self.showMessage("Filter Unsharp Mask radius:", radius)
 
     def applyFilter(self):
-        self.twinViewer.applyFilter()
+        image = self.twinViewer.right.pixmap()
+        self.twinViewer.left.display(image)
 
     def onConvolutionFilter(self, gridKernel):
         scale = 1
         offset = 0
         size = gridKernel.getSize()
         kernel = gridKernel.getIntValues()
-        image_working = self.twinViewer.imageInput().filter(ImageFilter.Kernel(size, kernel, scale, offset))
-        self.twinViewer.displayOutput(image_working)
+        image = self.twinViewer.left.filter(ImageFilter.Kernel, (size, kernel, scale, offset))
+        self.twinViewer.right.display(image)
         self.showMessage("Convolution size :  ", size[0])
 

@@ -32,6 +32,9 @@ class FrameWindow(BaseWindow):
         self.twinViewer = TwinViewer(self.splitter)
         self.splitter.addWidget(self.twinViewer)
         self.mainLayout().addWidget(self.splitter)
+        size = self.splitter.size().height()
+        self.splitter.setSizes([size * 0.2, size * 0.8])
+
         self.menubar = MainMenu(main_window)
 
         self.menubar.actionOpen(self.openFile)
@@ -51,9 +54,7 @@ class FrameWindow(BaseWindow):
 
     def displayPhoto(self, image_path):
         try:
-            self.image_path = image_path
-            image = utils.imageOpen(image_path)
-            self.twinViewer.displayInput(image)
+            self.twinViewer.left.display(image_path)
         except FileNotFoundError:
             self.showMessage("file not found at: ", image_path)
 
@@ -67,7 +68,7 @@ class FrameWindow(BaseWindow):
     def saveFile(self):
         image_path = self.launchDialogSaveFile()
         if image_path:
-            self.twinViewer.imageOutput().save(image_path, "PNG")
+            self.twinViewer.left.save(image_path)
 
     def trackTaskProgress(self, progress):
         self.twinViewer.displayOutput(progress)

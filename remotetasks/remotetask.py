@@ -1,46 +1,40 @@
 import json
 from abc import abstractmethod
-
-import PIL.Image as Image
-import numpy as np
-import urllib3
+from PySide6 import QtNetwork
+from uploader import Uploader
 
 endpoint = 'http://127.0.0.1:{0}/{1}'
 port = 5000
 
 
-def decodeJson(resp):
-    return json.loads(resp.data.decode('utf-8'))
-
-
-def decodeArray(ndarray):
-    return np.uint8(ndarray)
-
-
-def decodeImage(ndarray):
-    ndarray = decodeArray(ndarray)
-    return Image.fromarray(ndarray).convert('RGB')
-
-
-def openfile(file):
-    with open(file, 'rb') as fp:
-        file_data = fp.read()
-    return file_data
-
-
-class RemoteTask:
-    def __init__(self):
-        self.http = urllib3.PoolManager()
+class RemoteTask(Uploader):
+    def __init__(self, args):
+        super().__init__()
+        self.onRequestResponse = args[0]
+        self.onRequestProgress = args[1]
+        self.onRequestError = args[2]
+        self.netaccess = QtNetwork.QNetworkAccessManager()
         self.resource = None
 
     def endpoint(self):
         return endpoint.format(port, self.resource)
 
     def request(self, data):
-        resp = self.http.request(
-            'POST', self.endpoint(),
-            fields={'file': ('data', data)})
-        return decodeJson(resp)
+        self.upload(data, self.endpoint())
+
+    def handleUploadProgress(self, sent, total):
+        self.onRequestProgress(sent, total)
+
+    def handleFinished(self):
+        reply = self.reply.readAll()
+        reply = json.loads(str(reply, "utf-8"))
+        self.onRequestResponse(reply)
+        self.multiPart.deleteLater()
+        self.reply.deleteLater()
+        self.reply = None
+
+    def handleError(self):
+        self.onRequestError(self.reply.errorString(), self.reply.error())
 
     @abstractmethod
     def runRemoteTask(self, image_path):
