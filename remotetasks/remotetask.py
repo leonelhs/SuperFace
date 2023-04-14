@@ -1,26 +1,25 @@
+import abc
 import json
-from abc import abstractmethod
 from PySide6 import QtNetwork
-from uploader import Uploader
+from remotetasks.networkrequest import NetworkRequest
 
 endpoint = 'http://127.0.0.1:{0}/{1}'
 port = 5000
 
 
-class RemoteTask(Uploader):
+class RemoteTask(NetworkRequest, metaclass=abc.ABCMeta):
     def __init__(self, args):
         super().__init__()
         self.onRequestResponse = args[0]
         self.onRequestProgress = args[1]
         self.onRequestError = args[2]
         self.netaccess = QtNetwork.QNetworkAccessManager()
-        self.resource = None
 
     def endpoint(self):
-        return endpoint.format(port, self.resource)
+        return endpoint.format(port, self.resource())
 
     def request(self, data):
-        self.upload(data, self.endpoint())
+        self.uploadFile(data, self.endpoint())
 
     def handleUploadProgress(self, sent, total):
         self.onRequestProgress(sent, total)
@@ -36,6 +35,10 @@ class RemoteTask(Uploader):
     def handleError(self):
         self.onRequestError(self.reply.errorString(), self.reply.error())
 
-    @abstractmethod
-    def runRemoteTask(self, image_path):
-        pass
+    @abc.abstractmethod
+    def resource(self) -> str:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def runRemoteTask(self, image):
+        raise NotImplementedError

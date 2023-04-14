@@ -1,14 +1,14 @@
 from PySide6.QtWidgets import QMenuBar, QMenu
 
-from Helpers.Actions import Action
+from Helpers.ActionMenu import ActionMenu
 
 
 class MainMenu(QMenuBar):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.action_open = Action(self, "Open", "fa.folder-open")
-        self.action_save = Action(self, "Save as", "fa.save")
+        self.action_open = ActionMenu(self, "Open", "fa.folder-open")
+        self.action_save = ActionMenu(self, "Save as", "fa.save")
         # self.action_zoom = Action(self, "Zoom", "ri.zoom-in-line")
         # self.action_rotate = Action(self, "Rotate", "mdi6.rotate-right-variant")
 

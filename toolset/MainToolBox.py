@@ -2,34 +2,35 @@ from PySide6.QtWidgets import QComboBox
 
 from UI.widgets.GridInputs import GridInputs
 from UI.widgets.GridSliders import GridSliders
-from UI.widgets.ToolBoxMaker import ToolBoxMaker
+from toolset.BaseToolBox import BaseToolBox
 
 
-class ToolBoxEnhancer(ToolBoxMaker):
+class MainToolBox(BaseToolBox):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.addPage("fast", u"Fast Operations")
-        self.addPage("filters", u"Image filters")
-        self.addPage("convolution", u"Convolution filter")
-        self.addPage("face", u"Super Face")
-        self.addPage("hires", u"Super Resolution")
+
+        # self.addPage("fast", u"Fast Operations")
+        # self.addPage("filters", u"Image filters")
+        # self.addPage("convolution", u"Convolution filter")
+        # self.addPage("face", u"Super Face")
+        # self.addPage("hires", u"Super Resolution")
         # self.addPage("zero", u"Zero Background")
         # self.addPage("makeup", u"Makeup Face")
-        self.addPage("parser", u"Face Parser")
-        self.addPage("scratch", u"Zero Scratches")
-        self.addPage("light", u"Light Enhancement")
-        self.addPage("style", u"Style transfer")
-        self.addPage("vectors", u"Interpolate  vectors")
-        self.addPage("retina", u"Retina Face")
-        self.addPage("delf", u"Match images")
-        self.addPage("pose", u"Human pose")
-        self.addPage("color", u"Super Colorize")
-        self.addPage("bald", u"Bald Face")
-        self.setCurrentIndex(0)
-        self.toolset_ai = None
-        self.toolset_filters = None
-        self.toolset_fast = None
+        # self.addPage("parser", u"Face Parser")
+        # self.addPage("scratch", u"Zero Scratches")
+        # self.addPage("light", u"Light Enhancement")
+        # self.addPage("style", u"Style transfer")
+        # self.addPage("vectors", u"Interpolate  vectors")
+        # self.addPage("retina", u"Retina Face")
+        # self.addPage("delf", u"Match images")
+        # self.addPage("pose", u"Human pose")
+        # self.addPage("color", u"Super Colorize")
+        # self.addPage("bald", u"Bald Face")
+
+    def buildPage(self, name, label):
+        self.addPage(name, label)
+        self.toolsets(name).buildPage(self)
 
     def buildFastPage(self):
         self.addButton("fast", "Parse face", self.toolset_fast.processParseFace)

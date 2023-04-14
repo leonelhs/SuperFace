@@ -2,20 +2,11 @@ import abc
 
 from PySide6 import QtNetwork
 from PySide6.QtCore import QUrl
-from PySide6.QtNetwork import QNetworkRequest, QHttpMultiPart
+
+from remotetasks import makeMultipart
 
 
-def makeMultipart(data):
-    multiPart = QtNetwork.QHttpMultiPart(QHttpMultiPart.ContentType.FormDataType)
-    imagePart = QtNetwork.QHttpPart()
-    imagePart.setHeader(QNetworkRequest.ContentDispositionHeader, 'form-data; name="file"; filename="data"')
-    imagePart.setHeader(QNetworkRequest.ContentTypeHeader, 'application/octet-stream')
-    imagePart.setBody(data)
-    multiPart.append(imagePart)
-    return multiPart
-
-
-class Uploader(metaclass=abc.ABCMeta):
+class NetworkRequest(metaclass=abc.ABCMeta):
 
     def __init__(self):
         self.netaccess = None
@@ -23,7 +14,7 @@ class Uploader(metaclass=abc.ABCMeta):
         self.multiPart = None
         self.reply = None
 
-    def upload(self, data, url):
+    def uploadFile(self, data, url):
         if self.reply is None:
             self.stream = data
             self.multiPart = makeMultipart(self.stream)
@@ -38,13 +29,13 @@ class Uploader(metaclass=abc.ABCMeta):
         return (hasattr(subclass, 'handleFinished') and
                 callable(subclass.handleFinished) and
                 hasattr(subclass, 'handleUploadProgress') and
-                callable(subclass.handleUploadProgress) or
+                callable(subclass.handleUploadProgress) and
                 hasattr(subclass, 'handleError') and
                 callable(subclass.handleError) or
                 NotImplemented)
 
     @abc.abstractmethod
-    def handleFinished(self, finish):
+    def handleFinished(self):
         raise NotImplementedError
 
     @abc.abstractmethod

@@ -2,8 +2,8 @@ import logging
 
 from PySide6.QtCore import QThreadPool
 
-from ToolsetAI import ToolsetAI
-from ToolsetFilters import ToolsetFilters
+from toolset.ToolsetAI import ToolsetAI
+from toolset.ToolsetFilters import ToolsetFilters
 from UI.FrameWindow import FrameWindow
 from UI.widgets.BoundingBoxRect import BoundingBoxRect
 
