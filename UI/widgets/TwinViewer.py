@@ -11,7 +11,5 @@ class TwinViewer(QSplitter):
         self.setOrientation(Qt.Horizontal)
         self.left = ImageView(self)
         self.right = ImageView(self)
-        self.left.setEnabled(False)
-        self.right.setEnabled(False)
         self.addWidget(self.left)
         self.addWidget(self.right)

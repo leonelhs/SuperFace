@@ -1,17 +1,19 @@
 from abc import ABC
 
-from toolset.Toolset import Toolset
 from UI.widgets.BoundingBoxRect import BoundingBoxRect
 from UI.widgets.drawing_box import DrawingBox
-from remotetasks.tensorflow.tasksegmentation import TaskSegmentation
-from toolset import makeMask, resize, makeImage, bitWiseAnd, floodFill, ndArray
+from UI.widgets.eraser_box import EraserBox
+from remotetasks.Segementation.tasksegmentation import TaskSegmentation
+from utils import makeMask, resize, makeImage, bitWiseAnd, floodFill
+from toolset.BaseToolset import BaseToolset
 
 erase_color = (255, 0, 0)
 
 
-class ToolsetFast(Toolset, ABC):
+class ToolsetFast(BaseToolset, ABC):
     def __init__(self, parent):
         super().__init__(parent)
+        self.eraserBox = None
         self.drawingBox = None
         self.taskSegment = None
         self.overlay = None
@@ -28,12 +30,13 @@ class ToolsetFast(Toolset, ABC):
         self.addButton("Erase area", self.processEraseArea)
         self.addButton("Make alpha", self.processMakeAlpha)
         self.addButton("Undo erase", self.processParseReset)
+        self.addButton("Free erase", self.processFreeErase)
 
     def initTool(self):
-        args = (self.onRequestResponse, self.onRequestProgress, self.onRequestError)
         self.drawingBox = DrawingBox()
+        self.eraserBox = EraserBox()
         self.drawingBox.connectMouseClick(self.onRightImageClick)
-        self.taskSegment = TaskSegmentation(args)
+        self.taskSegment = TaskSegmentation(self)
 
     def onRightImageClick(self, position):
         self.historyPush()
@@ -43,19 +46,16 @@ class ToolsetFast(Toolset, ABC):
         self.parent.twinViewer.right.display(self.overlay)
 
     def processParseFace(self):
-        if self.parent.twinViewer.left.isEnabled():
-            self.preInit("Parsing face")
-            image = self.parent.twinViewer.left.bytes()
-            self.original = image[:]
-            self.taskSegment.runRemoteTask(image)
-        else:
-            raise TypeError("No image loaded")
+        self.preInit("Parsing face")
+        image = self.parent.twinViewer.left.bytes()
+        self.original = image[:]
+        self.taskSegment.runRemoteTask(image)
 
     def processEraseArea(self):
-        if self.parent.twinViewer.right.isEnabled():
-            self.parent.twinViewer.right.setDrawer(self.drawingBox)
-        else:
-            raise TypeError("No image loaded")
+        self.parent.twinViewer.right.setDrawer(self.drawingBox)
+
+    def processFreeErase(self):
+        self.parent.twinViewer.left.setEraser(self.eraserBox)
 
     def processMakeAlpha(self):
         if self.parent.twinViewer.right.isEnabled():
@@ -83,15 +83,8 @@ class ToolsetFast(Toolset, ABC):
     def historyPush(self):
         self.history.append((self.overlay.copy(), self.colormap.copy()))
 
-    def onRequestResponse(self, reply):
-        overlay, colormap, _ = reply
-        self.overlay = ndArray(overlay)
-        self.colormap = ndArray(colormap)
+    def onRequestResponse(self, resource, reply):
+        self.overlay = reply["overlay"]
+        self.colormap = reply["colormap"]
         self.parent.twinViewer.right.display(self.overlay)
         self.parent.progressBar.hide()
-
-    def onRequestProgress(self, sent, total):
-        pass
-
-    def onRequestError(self, message, error):
-        pass

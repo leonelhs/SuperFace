@@ -4,15 +4,12 @@ from PySide6 import QtNetwork
 from remotetasks.networkrequest import NetworkRequest
 
 endpoint = 'http://127.0.0.1:{0}/{1}'
-port = 5000
+port = 5001
 
 
 class RemoteTask(NetworkRequest, metaclass=abc.ABCMeta):
-    def __init__(self, args):
+    def __init__(self):
         super().__init__()
-        self.onRequestResponse = args[0]
-        self.onRequestProgress = args[1]
-        self.onRequestError = args[2]
         self.netaccess = QtNetwork.QNetworkAccessManager()
 
     def endpoint(self):
@@ -41,4 +38,16 @@ class RemoteTask(NetworkRequest, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def runRemoteTask(self, image):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def onRequestResponse(self, reply):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def onRequestProgress(self, sent, total):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def onRequestError(self, message, error):
         raise NotImplementedError

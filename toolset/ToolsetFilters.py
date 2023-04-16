@@ -6,10 +6,10 @@ from PySide6.QtWidgets import QComboBox
 from UI.widgets.GridInputs import GridInputs
 from UI.widgets.GridSliders import GridSliders
 from toolset import dataX3, dataX5
-from toolset.Toolset import Toolset
+from toolset.BaseToolset import BaseToolset
 
 
-class ToolsetFilters(Toolset, ABC):
+class ToolsetFilters(BaseToolset, ABC):
     def __init__(self, parent):
         super().__init__(parent)
         self.buildPage()
@@ -76,3 +76,6 @@ class ToolsetFilters(Toolset, ABC):
         image = self.parent.twinViewer.left.filter(ImageFilter.Kernel, (size, kernel, scale, offset))
         self.parent.twinViewer.right.display(image)
         self.parent.showMessage("Convolution size :  ", size[0])
+
+    def onRequestResponse(self, reply):
+        pass

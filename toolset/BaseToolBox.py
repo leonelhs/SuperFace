@@ -5,5 +5,5 @@ class BaseToolBox(ToolBoxMaker):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setCurrentIndex(0)
+        self.setCurrentIndex(2)
 

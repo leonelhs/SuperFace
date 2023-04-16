@@ -1,16 +1,18 @@
-import PIL.Image
-import PIL.ImageQt
 import numpy
+import PIL.Image
 from PySide6.QtCore import QMetaObject, QRect, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QGraphicsView, QGraphicsPixmapItem, QGraphicsScene
 
-from UI.widgets import load_pixmap, pixmap_to_image, image_to_bytes
+from utils import load_pixmap, pixmap_to_image, image_to_bytes
 
 
 class BaseGraphicsView(QGraphicsView):
     def __init__(self, parent=None):
         super(BaseGraphicsView, self).__init__(parent)
+        self.setEnabled(False)
+        self.canvas = None
+        self.canvasItem = None
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
         self.pixmapItem = QGraphicsPixmapItem()
@@ -18,6 +20,16 @@ class BaseGraphicsView(QGraphicsView):
         self.AspectMode = Qt.AspectRatioMode.KeepAspectRatio
         QMetaObject.connectSlotsByName(self)
         self.__style()
+
+    def canvas(self):
+        return self.canvasItem.pixmap()
+
+    def enableCanvas(self):
+        self.canvas = QPixmap(self.width(), self.height())
+        self.canvas.fill(Qt.GlobalColor.transparent)
+        self.canvasItem = QGraphicsPixmapItem()
+        self.canvasItem.setPixmap(self.canvas)
+        self.scene.addItem(self.canvasItem)
 
     def redraw(self):
         self.fitInView(self.pixmapItem, self.AspectMode)
@@ -29,7 +41,7 @@ class BaseGraphicsView(QGraphicsView):
     def rect(self) -> QRect:
         return self.pixmapItem.pixmap().rect()
 
-    def display(self, image):
+    def display(self, image: any):
         pixmap = load_pixmap(image)
         self.pixmapItem.setPixmap(pixmap)
         self.setEnabled(True)
@@ -38,9 +50,12 @@ class BaseGraphicsView(QGraphicsView):
     def pixmap(self) -> QPixmap:
         return self.pixmapItem.pixmap()
 
-    def image(self, mode="RGB") -> PIL.Image:
+    def image(self, mode="RGB") -> PIL.Image.Image:
         pixmap = self.pixmap()
-        return pixmap_to_image(pixmap, mode)
+        if pixmap is not None:
+            return pixmap_to_image(pixmap, mode)
+        else:
+            raise TypeError("No image loaded before")
 
     def ndarray(self) -> numpy.array:
         return numpy.array(self.image())
@@ -60,7 +75,7 @@ class BaseGraphicsView(QGraphicsView):
     def save(self, path, mode="PNG"):
         self.image().save(path, mode)
 
-    def filter(self, image_filter, args) -> PIL.Image:
+    def filter(self, image_filter, args) -> PIL.Image.Image:
         return self.image().filter(image_filter(*args))
 
     def __style(self):

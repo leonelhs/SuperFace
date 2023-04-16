@@ -8,6 +8,7 @@ class DrawingBox(QGraphicsRectItem):
         super().__init__()
         self.cursor = QCursor()
         self.onMouseClick = None
+        self.mode = None
         self.initUI()
 
     def initUI(self):
@@ -40,9 +41,3 @@ class DrawingBox(QGraphicsRectItem):
         mousePos = self.mapToScene(event.pos())
         if self.isInside(mousePos):
             self.onMouseClick((int(mousePos.x()), int(mousePos.y())))
-
-    # def mouseMoveEvent(self, event):
-    #     if event.buttons() == Qt.MouseButton.LeftButton:
-    #         mousePos = self.mapToScene(event.pos())
-    #         if self.isInside(mousePos):
-    #             self.scene().addEllipse(mousePos.x(), mousePos.y(), 20, 20)

@@ -16,10 +16,10 @@ from AI.Tensorflow.TaskRetinaFace import TaskRetinaFace
 from AI.Tensorflow.TaskSegmentation import TaskSegmentation
 from AI.Tensorflow.TaskStyleTransfer import TaskStyleTransfer
 from Helpers import utils
-from toolset.Toolset import Toolset
+from toolset.Toolset import BaseToolset
 
 
-class ToolsetAI(Toolset):
+class ToolsetAI(BaseToolset):
     def __init__(self, parent):
         super().__init__(parent)
         self.taskEraseScratches = None

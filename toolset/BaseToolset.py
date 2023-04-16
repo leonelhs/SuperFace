@@ -1,7 +1,7 @@
 import abc
 
 
-class Toolset(metaclass=abc.ABCMeta):
+class BaseToolset(metaclass=abc.ABCMeta):
     def __init__(self, parent):
         self.parent = parent
         self.history = list()
@@ -21,12 +21,33 @@ class Toolset(metaclass=abc.ABCMeta):
             raise TypeError("MainWindow ToolBox should not be None")
 
     def preInit(self, message):
-        pass
+        self.parent.progressBar.show()
 
     def historyBack(self):
         if len(self.history) > 0:
             return True
 
+    # Callbacks methods for Network request
+    @abc.abstractmethod
+    def onRequestResponse(self, resource, reply):
+        raise NotImplementedError
+
+    def onRequestProgress(self, sent, total):
+        pass
+
+    def onRequestError(self, message, error):
+        pass
+
+    # Methods for build Toolset controls page (buttons, inputs, ...)
+    @abc.abstractmethod
+    def name(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def buildPage(self):
+        raise NotImplementedError
+
+    # Wrapper methods from ToolBox maker
     def addPage(self, title):
         self.parent.toolBox.addPage(self.name(), title)
 
@@ -38,11 +59,3 @@ class Toolset(metaclass=abc.ABCMeta):
 
     def createLayout(self, widget):
         return self.parent.toolBox.createLayout(self.name(), widget)
-
-    @abc.abstractmethod
-    def name(self):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def buildPage(self):
-        raise NotImplementedError
