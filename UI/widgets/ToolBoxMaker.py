@@ -1,5 +1,7 @@
 from PySide6.QtWidgets import QToolBox, QWidget, QSizePolicy, QVBoxLayout, QLayout, QPushButton, QFileDialog
 
+from UI.widgets.left_aligin_button import LeftAlignButton
+
 
 class ToolBoxMaker(QToolBox):
     def __init__(self, parent):
@@ -27,7 +29,7 @@ class ToolBoxMaker(QToolBox):
         return self.__pages[name]
 
     def addButton(self, page, label, action=None, args=None):
-        button = QPushButton(self.item(page))
+        button = LeftAlignButton(self.item(page))
         button.setText(label)
         if action:
             def callback():
@@ -41,8 +43,8 @@ class ToolBoxMaker(QToolBox):
         self.page(page).addWidget(button)
         return button
 
-    def createWidget(self, page, widget):
-        new_widget = widget(self.item(page))
+    def createWidget(self, page, custom_widget):
+        new_widget = custom_widget(self.item(page))
         self.page(page).addWidget(new_widget)
         return new_widget
 

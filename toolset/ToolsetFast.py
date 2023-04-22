@@ -1,11 +1,14 @@
 from abc import ABC
 
+from PySide6.QtWidgets import QComboBox
+
 from UI.widgets.BoundingBoxRect import BoundingBoxRect
+from UI.widgets.ComboBox import ComboBox
 from UI.widgets.drawing_box import DrawingBox
 from UI.widgets.eraser_box import EraserBox
 from remotetasks.Segementation.tasksegmentation import TaskSegmentation
-from utils import makeMask, resize, makeImage, bitWiseAnd, floodFill
 from toolset.BaseToolset import BaseToolset
+from utils import makeMask, resize, makeImage, bitWiseAnd, floodFill
 
 erase_color = (255, 0, 0)
 
@@ -20,17 +23,26 @@ class ToolsetFast(BaseToolset, ABC):
         self.colormap = None
         self.initTool()
         self.buildPage()
+        self.parseMethod = 0
 
     def name(self):
         return "fast"
 
     def buildPage(self):
         self.addPage("Fast Operations")
-        self.addButton("Parse face", self.processParseFace)
+        parser = self.createWidget(QComboBox)
+        parser.addItems(["Parse face", "Parse objects"])
+
+        def onSelectParserChanged(index):
+            self.parseMethod = index
+            print(self.parseMethod)
+
+        parser.currentIndexChanged.connect(onSelectParserChanged)
+        # parser.setOnIndexChanged(onSelectParserChanged)
+        self.addButton("Parse image", self.processParseFace)
         self.addButton("Erase area", self.processEraseArea)
         self.addButton("Make alpha", self.processMakeAlpha)
         self.addButton("Undo erase", self.processParseReset)
-        self.addButton("Free erase", self.processFreeErase)
 
     def initTool(self):
         self.drawingBox = DrawingBox()
@@ -49,13 +61,13 @@ class ToolsetFast(BaseToolset, ABC):
         self.preInit("Parsing face")
         image = self.parent.twinViewer.left.bytes()
         self.original = image[:]
-        self.taskSegment.runRemoteTask(image)
+        if self.parseMethod == 0:
+            self.taskSegment.runRemoteTask(image)
+        else:
+            self.taskSegment.runRemoteTask(image, port="5000")
 
     def processEraseArea(self):
         self.parent.twinViewer.right.setDrawer(self.drawingBox)
-
-    def processFreeErase(self):
-        self.parent.twinViewer.left.setEraser(self.eraserBox)
 
     def processMakeAlpha(self):
         if self.parent.twinViewer.right.isEnabled():

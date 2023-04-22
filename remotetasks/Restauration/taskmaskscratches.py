@@ -1,10 +1,10 @@
 from abc import ABC
-from remotetasks.remotetask import RemoteTask
+from remotetasks.remote_task import BaseRemoteTask
 from toolset.BaseToolset import BaseToolset
 from utils import uint8
 
 
-class TaskMaskScratches(RemoteTask, ABC):
+class TaskMaskScratches(BaseRemoteTask, ABC):
 
     def __init__(self, parent: BaseToolset):
         super().__init__()

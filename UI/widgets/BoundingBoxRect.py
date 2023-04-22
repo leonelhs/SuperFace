@@ -10,9 +10,9 @@ class BoundingBoxRect(BoundingBox):
     def setOnBoundingResizeEvent(self, callback):
         self.boundingBoxEvent = callback
 
-    def mouseMoveEvent(self, e):
+    def mouseMoveEvent(self, event):
         self.boundingBoxEvent(self.mapRectToScene(self.boundingRect()))
-        return super().mouseMoveEvent(e)
+        return super().mouseMoveEvent(event)
 
     def keyPressEvent(self, e):
         self.boundingBoxEvent(self.mapRectToScene(self.boundingRect()))

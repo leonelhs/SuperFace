@@ -1,11 +1,13 @@
 import qtawesome as qta
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QWidget, QVBoxLayout, QStatusBar
+from PySide6.QtWidgets import QMainWindow, QFileDialog, QWidget, QStatusBar, QVBoxLayout
 
 
 class BaseWindow(QMainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.toolBar = None
+        self.toolBox = None
         self.progressBar = None
         icon = qta.icon("fa.picture-o")
         self.setWindowIcon(icon)
@@ -15,12 +17,6 @@ class BaseWindow(QMainWindow):
         self.statusbar = QStatusBar(self)
         self.setStatusBar(self.statusbar)
         self.setCentralWidget(self.central_widget)
-
-    def mainWidget(self):
-        return self.central_widget
-
-    def mainLayout(self):
-        return self.main_layout
 
     def launchDialogOpenFile(self, title="Open Image"):
         return QFileDialog.getOpenFileName(self, title)[0]

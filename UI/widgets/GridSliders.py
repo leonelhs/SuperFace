@@ -11,14 +11,26 @@ def setInterval(slider, scale, data_min, data_max):
 class GridSliders(QGridLayout):
     def __init__(self, parent):
         super().__init__(parent)
+        self.slider = None
+        self.value = None
         self.parent = parent
 
     def addSlider(self, title, row, callback=None):
         label = QLabel(self.parent)
+        self.value = QLabel(self.parent)
         label.setText(title)
+        self.value.setText("1")
         self.addWidget(label, row, 0, 1, 1)
-        slider = QSlider(self.parent)
-        slider.setOrientation(Qt.Horizontal)
-        self.addWidget(slider, row, 1, 1, 1)
-        setInterval(slider, scale=1, data_min=1, data_max=100)
-        slider.valueChanged.connect(callback)
+        self.slider = QSlider(self.parent)
+        self.slider.setOrientation(Qt.Horizontal)
+        self.addWidget(self.slider, row, 1, 1, 1)
+        self.addWidget(self.value, row, 2, 1, 1)
+        setInterval(self.slider, scale=1, data_min=1, data_max=100)
+        self.slider.valueChanged.connect(callback)
+        return self
+
+    def setOnValueChanged(self, callback):
+        self.slider.valueChanged.connect(callback)
+
+    def setInterval(self, scale, data_min, data_max):
+        setInterval(self.slider, scale, data_min, data_max)

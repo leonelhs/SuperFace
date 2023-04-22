@@ -1,9 +1,5 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QGraphicsPixmapItem
-
-from UI.widgets.drawing_box import DrawingBox
 from UI.widgets.BaseGraphicsView import BaseGraphicsView
+from UI.widgets.drawing_box import DrawingBox
 from UI.widgets.eraser_box import EraserBox
 
 
@@ -42,3 +38,14 @@ class ImageView(BaseGraphicsView):
         if self.eraser is not None:
             self.scene.removeItem(self.eraser)
             self.eraser = None
+
+    def setStyle(self, style):
+        self.setStyleSheet(style)
+
+    def setOnclickView(self, callback):
+        self.onclick = callback
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        name = super().objectName()
+        self.onclick(event, name)

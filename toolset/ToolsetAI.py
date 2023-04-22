@@ -1,12 +1,12 @@
 from AI.Pytorch.TaskEraseScratches import TaskEraseScratches
 from AI.Pytorch.TaskMaskScratches import TaskMaskScratches
-from AI.TaskColorize import TaskColorize
-from AI.TaskFaceMakeup import TaskFaceMakeup
-from AI.TaskFaceParser import TaskFaceParser
-from AI.TaskLowLight import TaskLowLight
-from AI.TaskSuperFace import TaskSuperFace
-from AI.TaskSuperResolution import TaskSuperResolution
-from AI.TaskZeroBackground import TaskZeroBackground
+from AI.Pytorch.TaskColorize import TaskColorize
+from AI.Pytorch.TaskFaceMakeup import TaskFaceMakeup
+from AI.Pytorch.TaskFaceParser import TaskFaceParser
+from AI.Pytorch.TaskLowLight import TaskLowLight
+from AI.Pytorch.superface.TaskSuperFace import TaskSuperFace
+from AI.Pytorch.superface.TaskSuperResolution import TaskSuperResolution
+from AI.Pytorch.TaskZeroBackground import TaskZeroBackground
 from AI.Tensorflow.TaskBaldFace import TaskBaldFace
 from AI.Tensorflow.TaskDeepLocalFeatures import TaskDeepLocalFeatures
 from AI.Tensorflow.TaskEstimatePose import TaskEstimatePose
@@ -16,10 +16,9 @@ from AI.Tensorflow.TaskRetinaFace import TaskRetinaFace
 from AI.Tensorflow.TaskSegmentation import TaskSegmentation
 from AI.Tensorflow.TaskStyleTransfer import TaskStyleTransfer
 from Helpers import utils
-from toolset.Toolset import BaseToolset
 
 
-class ToolsetAI(BaseToolset):
+class ToolsetAI:
     def __init__(self, parent):
         super().__init__(parent)
         self.taskEraseScratches = None

@@ -9,12 +9,15 @@ from PySide6.QtWidgets import QProgressBar
 from PySide6.QtCore import QPropertyAnimation, QAbstractAnimation, QEasingCurve
 
 
+# Fixme QPropertyAnimation: you're trying to animate a non-existing property
 class LoadingProgressBar(QProgressBar):
     def __init__(self):
         super().__init__()
-        self.__initUi()
+        self.__animation = None
+        self.hide()
 
-    def __initUi(self):
+    def show(self):
+        super().show()
         self.setValue(0)
         self.setTextVisible(False)
         self.__animation = QPropertyAnimation(self, b'loading')

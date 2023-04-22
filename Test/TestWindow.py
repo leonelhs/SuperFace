@@ -6,17 +6,17 @@ from PySide6.QtWidgets import QLabel, QHBoxLayout
 from Test import load_pixmap
 from Test.TestTask import TestTask
 from UI.widgets.BaseWindow import BaseWindow
+from UI.widgets.LoadingProgressBar import LoadingProgressBar
 
 
 def trackTaskProgress(progress):
     print(progress)
 
 
-def taskComplete():
-    print("Test done.")
 
 
-path = "./Test/image_test.jpg"
+# path = "./Test/image_test.jpg"
+path = "/home/leonel/faces.jpg"
 
 
 class TestWindow(BaseWindow):
@@ -24,13 +24,16 @@ class TestWindow(BaseWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.threadpool = QThreadPool()
-        self.args = (self.threadpool, self.taskDone, taskComplete, trackTaskProgress)
+        self.args = (self.threadpool, self.taskDone, self.taskComplete, trackTaskProgress)
         self.testTask = None
         self.image_test = PIL.Image.open(path)
         pixmap = self.image_test.toqpixmap()
         self.tet_layout = QHBoxLayout(self)
         self.main_layout.addLayout(self.tet_layout)
         self.addPicture(pixmap)
+        self.progressBar = LoadingProgressBar()
+        self.main_layout.addWidget(self.progressBar)
+        self.progressBar.hide()
 
     def addPicture(self, pixmap: QPixmap):
         picture = QLabel()
@@ -47,4 +50,9 @@ class TestWindow(BaseWindow):
             self.addPicture(pixmap)
 
     def runTest(self):
+        self.progressBar.show()
         self.testTask.runTest(self.image_test)
+
+    def taskComplete(self):
+        print("Test done.")
+        self.progressBar.hide()

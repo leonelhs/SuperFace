@@ -3,12 +3,12 @@ import numpy as np
 import PIL.Image
 
 from remotetasks.Segementation import vis_parsing_maps, decode_segmentation_masks
-from remotetasks.remotetask import RemoteTask
+from remotetasks.remote_task import BaseRemoteTask
 from toolset.BaseToolset import BaseToolset
 from utils import uint8, makeImage
 
 
-class TaskSegmentation(RemoteTask, ABC):
+class TaskSegmentation(BaseRemoteTask, ABC):
 
     def __init__(self, parent: BaseToolset):
         super().__init__()
@@ -18,9 +18,9 @@ class TaskSegmentation(RemoteTask, ABC):
     def resource(self) -> str:
         return "segment"
 
-    def runRemoteTask(self, image: bytes):
+    def runRemoteTask(self, image: bytes, port="5001"):
         self.files["image_a"] = image
-        self.request(self.files)
+        self.request(self.files, port)
 
     def onRequestResponse(self, reply):
         prediction_mask = np.asarray(reply)

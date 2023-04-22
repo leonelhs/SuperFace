@@ -1,10 +1,17 @@
 import io
+import json
+
 import cv2
 import PIL
 import PIL.Image
 import PIL.ImageQt
 import numpy as np
 from PySide6.QtGui import QPixmap
+
+
+def config():
+    data = open('conf.json')
+    return json.load(data)
 
 
 def uint8(array):

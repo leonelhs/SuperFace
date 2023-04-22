@@ -22,6 +22,7 @@ class BaseToolset(metaclass=abc.ABCMeta):
 
     def preInit(self, message):
         self.parent.progressBar.show()
+        self.parent.showMessage("Running task: ", message)
 
     def historyBack(self):
         if len(self.history) > 0:
@@ -36,7 +37,8 @@ class BaseToolset(metaclass=abc.ABCMeta):
         pass
 
     def onRequestError(self, message, error):
-        pass
+        self.parent.progressBar.hide()
+        self.parent.showMessage(error, message)
 
     # Methods for build Toolset controls page (buttons, inputs, ...)
     @abc.abstractmethod

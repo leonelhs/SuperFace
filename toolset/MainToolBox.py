@@ -33,7 +33,7 @@ class MainToolBox(BaseToolBox):
         self.toolsets(name).buildPage(self)
 
     def buildFastPage(self):
-        self.addButton("fast", "Parse face", self.toolset_fast.processParseFace)
+        self.addButton("fast", "Parse face", self.toolset_fast.processSuperFace)
         self.addButton("fast", "Erase area", self.toolset_fast.processEraseArea)
         self.addButton("fast", "Make alpha", self.toolset_fast.processMakeAlpha)
         self.addButton("fast", "Undo erase", self.toolset_fast.processParseReset)
@@ -68,7 +68,7 @@ class MainToolBox(BaseToolBox):
     def pageSuperResolution(self):
         scale = self.createWidget("hires", QComboBox)
         scale.addItems(["Scale 2X", "Scale 4X", "Scale 8X"])
-        self.addButton("hires", "Pytorch code", self.toolset_ai.processHiresPytorch)
+        self.addButton("hires", "Pytorch code", self.toolset_ai.processSuperResolution)
         self.addButton("hires", "Tensorflow code", self.toolset_ai.processHiresTensorflow)
         scale.currentIndexChanged.connect(self.toolset_ai.onHiresScaleChanged)
 

@@ -13,13 +13,13 @@ class BaseGraphicsView(QGraphicsView):
         self.setEnabled(False)
         self.canvas = None
         self.canvasItem = None
+        self.onclick = None
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
         self.pixmapItem = QGraphicsPixmapItem()
         self.scene.addItem(self.pixmapItem)
         self.AspectMode = Qt.AspectRatioMode.KeepAspectRatio
         QMetaObject.connectSlotsByName(self)
-        self.__style()
 
     def canvas(self):
         return self.canvasItem.pixmap()
@@ -77,7 +77,3 @@ class BaseGraphicsView(QGraphicsView):
 
     def filter(self, image_filter, args) -> PIL.Image.Image:
         return self.image().filter(image_filter(*args))
-
-    def __style(self):
-        self.setStyleSheet("QGraphicsView::hover"
-                           "{border: 2px solid #6CC417;}")

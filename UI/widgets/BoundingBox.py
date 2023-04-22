@@ -29,7 +29,7 @@ class BoundingBox(QGraphicsRectItem):
 
     def __initUi(self):
         self.setAcceptHoverEvents(True)
-        self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsFocusable)
+        self.setFlags(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable | QGraphicsItem.GraphicsItemFlag.ItemIsFocusable)
         self.__setStyleOfBoundingBox()
 
     # init the edge direction for set correct reshape cursor based on it
@@ -55,7 +55,7 @@ class BoundingBox(QGraphicsRectItem):
 
     def __setStyleOfBoundingBox(self):
         pen = QPen()
-        pen.setStyle(Qt.DashLine)
+        pen.setStyle(Qt.PenStyle.DashLine)
         pen.setWidth(self.__line_width)
         self.setRect(QRectF(0.0, 0.0, self.__default_width, self.__default_height))
         self.setPen(pen)
@@ -70,7 +70,7 @@ class BoundingBox(QGraphicsRectItem):
 
         if rect.contains(p):
             # move
-            self.setFlags(self.flags() | QGraphicsItem.ItemIsMovable)
+            self.setFlags(self.flags() | QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
             self.__cursor.setShape(Qt.SizeAllCursor)
             self.setCursor(self.__cursor)
             self.__cursor = self.cursor()
@@ -82,7 +82,7 @@ class BoundingBox(QGraphicsRectItem):
             y = p.y()
 
             def setResizeEnabled():
-                self.setFlags(self.flags() & ~QGraphicsItem.ItemIsMovable)
+                self.setFlags(self.flags() & ~QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
                 self.setCursor(self.__cursor)
                 self.__resizeEnabled = True
 
@@ -99,27 +99,27 @@ class BoundingBox(QGraphicsRectItem):
             # set the cursor shape based on flag above
             if self.__top or self.__left or self.__bottom or self.__right:
                 if self.__top and self.__left:
-                    self.__cursor.setShape(Qt.SizeFDiagCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeFDiagCursor)
                 elif self.__top and self.__right:
-                    self.__cursor.setShape(Qt.SizeBDiagCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeBDiagCursor)
                 elif self.__bottom and self.__left:
-                    self.__cursor.setShape(Qt.SizeBDiagCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeBDiagCursor)
                 elif self.__bottom and self.__right:
-                    self.__cursor.setShape(Qt.SizeFDiagCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeFDiagCursor)
                 elif self.__left:
-                    self.__cursor.setShape(Qt.SizeHorCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeHorCursor)
                 elif self.__top:
-                    self.__cursor.setShape(Qt.SizeVerCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeVerCursor)
                 elif self.__right:
-                    self.__cursor.setShape(Qt.SizeHorCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeHorCursor)
                 elif self.__bottom:
-                    self.__cursor.setShape(Qt.SizeVerCursor)
+                    self.__cursor.setShape(Qt.CursorShape.SizeVerCursor)
                 setResizeEnabled()
 
-    def mouseMoveEvent(self, e):
+    def mouseMoveEvent(self, event):
         if self.__resizeEnabled:
             rect = self.rect()
-            p = e.pos()
+            p = event.pos()
             x = p.x()
             y = p.y()
 
@@ -162,7 +162,7 @@ class BoundingBox(QGraphicsRectItem):
 
             self.setRect(rect)
 
-        return super().mouseMoveEvent(e)
+        return super().mouseMoveEvent(event)
 
     def hoverMoveEvent(self, e):
         p = e.pos()
