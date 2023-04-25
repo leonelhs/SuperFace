@@ -1,14 +1,13 @@
-from abc import ABC
-
+import numpy as np
 from PySide6.QtCore import Qt
 
-from UI.widgets.GridSliders import GridSliders
+from UI.widgets.Slider import Slider
 from UI.widgets.eraser_box import EraserBox
 from UI.widgets.palettecolors import PaletteColors
-from toolset.BaseToolset import BaseToolset
+from UI.toolset.Toolset import Toolset
 
 
-class ToolsetFaceDrawer(BaseToolset, ABC):
+class ToolsetFaceDrawer(Toolset):
     def __init__(self, parent):
         super().__init__(parent)
         self.eraserBox = None
@@ -25,8 +24,8 @@ class ToolsetFaceDrawer(BaseToolset, ABC):
     def buildPage(self):
         self.addPage("Draw Operations")
         self.addButton("Free erase", self.processFreeErase)
-        controls = self.createLayout(GridSliders)
-        self.slider = controls.addSlider("Pen width", row=0)
+        controls = self.createLayout(Slider)
+        self.slider = controls.build("Pen width", row=0)
         self.slider.setOnValueChanged(self.onSliderPenWidthChanged)
         self.addButton("Undo erase", self.processUndoErase)
         self.addButton("Erase erase", self.processEraseErase)
@@ -34,7 +33,7 @@ class ToolsetFaceDrawer(BaseToolset, ABC):
         paletteColors.setOnColorPicked(self.onColorPicked)
 
     def processFreeErase(self):
-        self.parent.twinViewer.left.setEraser(self.eraserBox)
+        self.main_window.twinViewer.left.setEraser(self.eraserBox)
 
     def processEraseErase(self):
         self.eraserBox.setPencolor(Qt.GlobalColor.transparent)
@@ -50,5 +49,5 @@ class ToolsetFaceDrawer(BaseToolset, ABC):
     def onColorPicked(self, color):
         self.eraserBox.setPencolor(color)
 
-    def onRequestResponse(self, resource, reply):
+    def onImageProcessDone(self, process: str, image: np.ndarray):
         pass

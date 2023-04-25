@@ -1,41 +1,53 @@
-from abc import ABC
-from remotetasks.base_remote_task import BaseRemoteTask
-from remotetasks.service import Service
-from toolset.BaseToolset import BaseToolset
-from utils import uint8
+import abc
+import json
+
+from PySide6 import QtNetwork
+
+from remotetasks.network_request import NetworkRequest
+
+BAD_CONNECTION = "Error, remote host seems down."
 
 
-class WrongImageFormat(Exception):
+class RemoteTask(NetworkRequest, metaclass=abc.ABCMeta):
     def __init__(self):
-        pass
-
-    def __str__(self):
-        return 'An image was expected'
-
-
-class RemoteTask(BaseRemoteTask, ABC):
-
-    def __init__(self, parent: BaseToolset):
         super().__init__()
-        self.parent = parent
+        self.reply = None
         self.service = None
+        self.netaccess = QtNetwork.QNetworkAccessManager()
 
-    def setService(self, service: Service):
-        self.service = service
+    def handleUploadProgress(self, sent, total):
+        self.onRequestProgress(sent, total)
 
-    def runRemoteTask(self, files: dict):
-        self.request(files, self.service.resource())
+    def clearRequest(self):
+        self.multiPart.deleteLater()
+        self.reply.deleteLater()
+        self.reply = None
 
-    def onRequestResponse(self, reply):
+    def handleFinished(self):
+        reply = self.reply.readAll()
         try:
-            reply = uint8(reply)
-            self.parent.onRequestResponse(self.service.api, reply)
-        except int() as error:
-            print(reply)
-            print(str(error))
+            reply = json.loads(str(reply, "utf-8"))
+            self.onRequestResponse(reply, self.service.api)
+        except json.decoder.JSONDecodeError:
+            self.onRequestError(reply, "bad-json")
+        finally:
+            self.clearRequest()
 
+    def handleError(self):
+        self.onRequestError(self.reply.errorString(), self.reply.error())
+
+    def runRemoteTask(self, file, service):
+        self.service = service
+        self.uploadFile(file, self.service.resource())
+
+    @abc.abstractmethod
+    def onRequestResponse(self, reply, api):
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def onRequestProgress(self, sent, total):
-        self.parent.onRequestProgress(sent, total)
+        raise NotImplementedError
 
+    @abc.abstractmethod
     def onRequestError(self, message, error):
-        self.parent.onRequestError(message, error)
+        raise NotImplementedError

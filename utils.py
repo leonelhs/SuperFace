@@ -9,7 +9,7 @@ import numpy as np
 from PySide6.QtGui import QPixmap
 
 
-def config():
+def read_config():
     data = open('conf.json')
     return json.load(data)
 
@@ -34,12 +34,6 @@ def resize(image, size):
     return cv2.resize(image, size, interpolation=cv2.INTER_AREA)
 
 
-def makeImage(array) -> PIL.Image.Image:
-    if isinstance(array, bytes):
-        return PIL.Image.open(io.BytesIO(array))
-    return PIL.Image.fromarray(array)
-
-
 def image_to_bytes(image: PIL.Image.Image) -> bytes:
     image_bytes = io.BytesIO()
     image.save(image_bytes, format="PNG")
@@ -50,15 +44,31 @@ def pixmap_to_image(pixmap, mode) -> PIL.Image.Image:
     return PIL.ImageQt.fromqpixmap(pixmap).convert(mode)
 
 
+def load_image(image_path: str) -> PIL.Image.Image:
+    return PIL.Image.open(image_path)
+
+
+def image_from_array(image: np.ndarray) -> PIL.Image.Image:
+    if "int64" in image.dtype.name:
+        image = uint8(image)
+    return PIL.Image.fromarray(image)
+
+
+def image_from_bytes(array) -> PIL.Image.Image:
+    if isinstance(array, bytes):
+        return PIL.Image.open(io.BytesIO(array))
+    return PIL.Image.fromarray(array)
+
+
 def load_pixmap(image) -> QPixmap:
+    if isinstance(image, list):
+        image = uint8(image)
     if isinstance(image, str):
-        return PIL.Image.open(image).convert('RGB').toqpixmap()
+        return load_image(image).convert('RGB').toqpixmap()
     if isinstance(image, bytes):
         return PIL.Image.open(io.BytesIO(image)).toqpixmap()
     if isinstance(image, np.ndarray):
-        if "int64" in image.dtype.name:
-            image = uint8(image)
-        return PIL.Image.fromarray(image).toqpixmap()
+        return image_from_array(image).toqpixmap()
     if isinstance(image, PIL.Image.Image):
         return image.toqpixmap()
     if isinstance(image, QPixmap):

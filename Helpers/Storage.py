@@ -1,4 +1,5 @@
 import contextlib
+import sqlite3
 from datetime import datetime
 from sqlite3 import connect as connect
 
@@ -11,7 +12,6 @@ class DbConnection(contextlib.closing):
 
 class Storage:
     def __init__(self, db_name=".images.db"):
-        self._gallery_id = None
         self._gallery_path = None
         self._db_name = db_name
         self._create_schema()
@@ -24,9 +24,9 @@ class Storage:
             with con as cur:
                 data = (file_path, datetime.now())
                 try:
-                    cur.execute("INSERT INTO recents(photo_id, opened) VALUES(?, ?)", data)
-                except:
-                    pass
+                    cur.execute("INSERT OR REPLACE INTO recents(photo_id, opened) VALUES(?, ?)", data)
+                except sqlite3.ProgrammingError as ex:
+                    raise TypeError(str(ex))
 
     def fetchRecents(self):
         with DbConnection(self._db_name) as con:

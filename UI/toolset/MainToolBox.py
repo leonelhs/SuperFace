@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QComboBox
 
 from UI.widgets.GridInputs import GridInputs
-from UI.widgets.GridSliders import GridSliders
-from toolset.BaseToolBox import BaseToolBox
+from UI.widgets.GridSliders import Slider
+from BaseToolBox import BaseToolBox
 
 
 class MainToolBox(BaseToolBox):
@@ -34,9 +34,9 @@ class MainToolBox(BaseToolBox):
 
     def buildFastPage(self):
         self.addButton("fast", "Parse face", self.toolset_fast.processSuperFace)
-        self.addButton("fast", "Erase area", self.toolset_fast.processEraseArea)
-        self.addButton("fast", "Make alpha", self.toolset_fast.processMakeAlpha)
-        self.addButton("fast", "Undo erase", self.toolset_fast.processParseReset)
+        self.addButton("fast", "Erase area", self.toolset_fast.activeEditMode)
+        self.addButton("fast", "Make alpha", self.toolset_fast.makeAlpha)
+        self.addButton("fast", "Undo erase", self.toolset_fast.editionUndo)
 
     def buildPageFilters(self):
         self.pageFilters()
@@ -86,10 +86,10 @@ class MainToolBox(BaseToolBox):
         self.addButton("delf", "Match images", self.toolset_ai.appendDelfImage)
 
     def pageFilters(self):
-        controls = self.createLayout("filters", GridSliders)
-        controls.addSlider("Blur", row=0, callback=self.toolset_filters.onSliderBlurChanged)
-        controls.addSlider("Box blur", row=1, callback=self.toolset_filters.onSliderBoxBlurChanged)
-        controls.addSlider("Unsharp", row=2, callback=self.toolset_filters.onSliderUnsharpMaskChanged)
+        controls = self.createLayout("filters", Slider)
+        controls.build("Blur", row=0, callback=self.toolset_filters.onSliderBlurChanged)
+        controls.build("Box blur", row=1, callback=self.toolset_filters.onSliderBoxBlurChanged)
+        controls.build("Unsharp", row=2, callback=self.toolset_filters.onSliderUnsharpMaskChanged)
         self.addButton("filters", "Apply filter", self.toolset_filters.applyFilter)
 
     def pageConvolution(self):

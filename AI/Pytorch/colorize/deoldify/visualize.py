@@ -307,7 +307,7 @@ class VideoColorizer:
         )
         colorframes_folder = self.colorframes_root / (source_path.stem)
         colorframes_path_template = str(colorframes_folder / '%5d.jpg')
-        colorized_path.parent.mkdir(parents=True, exist_ok=True)
+        colorized_path.main_window.mkdir(parents=True, exist_ok=True)
         if colorized_path.exists():
             colorized_path.unlink()
         fps = self._get_fps(source_path)

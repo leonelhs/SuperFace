@@ -1,5 +1,5 @@
 from PySide6.QtCore import (QMetaObject, Qt)
-from PySide6.QtWidgets import (QSplitter, QToolBar, QMenuBar, QMenu)
+from PySide6.QtWidgets import (QSplitter, QToolBar)
 
 from Helpers.ActionMenu import ActionMenu
 from Helpers.ActionSubmenu import ActionSubmenu
@@ -8,7 +8,7 @@ from UI.MainMenu import MainMenu
 from UI.widgets.BaseWindow import BaseWindow
 from UI.widgets.LoadingProgressBar import LoadingProgressBar
 from UI.widgets.TwinViewer import TwinViewer
-from toolset.BaseToolBox import BaseToolBox
+from UI.widgets.base_toolbox import BaseToolBox
 
 
 class FrameWindow(BaseWindow):
@@ -25,9 +25,6 @@ class FrameWindow(BaseWindow):
         self.action_paste = ActionMenu(self, "Paste", "fa.paste")
         self.action_swap = ActionMenu(self, "Swap", "mdi.swap-horizontal-bold")
         self.action_split = ActionMenu(self, "Split", "mdi.table-split-cell")
-        self.action_undo = ActionMenu(self, "Undo", "mdi.undo")
-        self.action_redo = ActionMenu(self, "Redo", "mdi.redo")
-        self.action_rotate = ActionMenu(self, "Rotate", "mdi6.rotate-right-variant")
         self.action_zoom_in = ActionMenu(self, "Zoom +", "ei.zoom-in")
         self.action_zoom_out = ActionMenu(self, "Zoom -", "ei.zoom-out")
 
@@ -38,19 +35,17 @@ class FrameWindow(BaseWindow):
     def _setupUi(self, main_window):
         self.menubar = MainMenu(main_window)
         self.menubar.actionOpen(self.openFile)
-        self.menubar.actionSave(self.saveActiveViewFile)
+        self.menubar.actionSave(self.saveFile)
         main_window.setMenuBar(self.menubar)
 
         self.toolBar = QToolBar(self.central_widget)
         self.toolBar.addAction(self.action_swap)
         self.toolBar.addAction(self.action_split)
-        self.action_swap.setOnClickEvent(self.twinImageSwap)
-        self.toolBar.addAction(self.action_undo)
-        self.toolBar.addAction(self.action_redo)
         self.toolBar.addAction(self.action_zoom_in)
         self.toolBar.addAction(self.action_zoom_out)
-        self.toolBar.addAction(self.action_rotate)
-        self.addToolBar(self.toolBar)
+        self.action_swap.setOnClickEvent(self.twinImageSwap)
+        self.action_split.setOnClickEvent(self.twinCollapse)
+        self.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.toolBar)
 
         self.mainSplitter = QSplitter(self.central_widget)
         self.mainSplitter.setOrientation(Qt.Horizontal)
@@ -59,7 +54,6 @@ class FrameWindow(BaseWindow):
         self.twinViewer = TwinViewer(self.mainSplitter)
         self.mainSplitter.addWidget(self.twinViewer)
         self.main_layout.addWidget(self.mainSplitter)
-
         # Add progressbar widget to last to keep at bottom
         self.progressBar = LoadingProgressBar()
         self.main_layout.addWidget(self.progressBar)
@@ -67,8 +61,9 @@ class FrameWindow(BaseWindow):
         QMetaObject.connectSlotsByName(main_window)
 
     def setSpliterSize(self, left, right):
-        size = self.mainSplitter.size().height()
-        self.mainSplitter.setSizes([size * left, size * right])
+        self.mainSplitter.setStretchFactor(0, 1)
+        self.mainSplitter.setStretchFactor(1, 5)
+        self.mainSplitter.setSizes([left*100, right*100])
 
     def addRecentFile(self, path):
         action = ActionSubmenu(self, path)
@@ -83,11 +78,15 @@ class FrameWindow(BaseWindow):
     def displayPhoto(self, image_path):
         try:
             self.twinViewer.left.display(image_path)
+            self.storage.insertRecent(image_path)
         except FileNotFoundError:
             self.showMessage("file not found at: ", image_path)
 
     def twinImageSwap(self):
         self.twinViewer.swapImages()
+
+    def twinCollapse(self):
+        self.twinViewer.collapse()
 
     def openFile(self):
         image_path = self.launchDialogOpenFile()
@@ -97,25 +96,7 @@ class FrameWindow(BaseWindow):
             self.displayPhoto(image_path)
             self.addRecentFile(image_path)
 
-    def saveFile(self, viewer):
+    def saveFile(self):
         image_path = self.launchDialogSaveFile()
         if image_path:
-            viewer.save(image_path)
-
-    def saveLeftFile(self):
-        if self.twinViewer.left.isEnabled():
-            self.saveFile(self.twinViewer.left)
-        else:
-            raise TypeError("No image loaded")
-
-    def saveRightFile(self):
-        if self.twinViewer.right.isEnabled():
-            self.saveFile(self.twinViewer.right)
-        else:
-            raise TypeError("No image loaded")
-
-    def saveActiveViewFile(self):
-        if self.twinViewer.active.isEnabled():
-            self.saveFile(self.twinViewer.active)
-        else:
-            raise TypeError("No image loaded")
+            self.twinViewer.left.save(image_path)

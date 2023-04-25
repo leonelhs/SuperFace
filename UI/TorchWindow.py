@@ -2,17 +2,17 @@ import logging
 
 from PySide6.QtCore import QThreadPool
 
-from AI.Pytorch.TaskEraseScratches import TaskEraseScratches
-from AI.Pytorch.TaskMaskScratches import TaskMaskScratches
+# from AI.Pytorch.TaskEraseScratches import TaskEraseScratches
+# from AI.Pytorch.TaskMaskScratches import TaskMaskScratches
 # from AI.TaskColorize import TaskColorize
 # from AI.TaskFaceMakeup import TaskFaceMakeup
 # from AI.TaskFaceParser import TaskFaceParser
-# from AI.TaskLowLight import TaskLowLight
-from AI.Pytorch.superface.TaskSuperFace import TaskSuperFace
-from AI.Pytorch.superface.TaskSuperResolution import TaskSuperResolution
-from AI.Pytorch.superface.superface_gfpgan import SuperFaceGfpgan
-from AI.Pytorch.superface.upsampler_real_esrgan import RealEsrganUpsampler
-# from AI.TaskZeroBackground import TaskZeroBackground
+from AI.Pytorch.task_low_light import TaskLowLight
+# from AI.Pytorch.superface.TaskSuperFace import TaskSuperFace
+# from AI.Pytorch.superface.TaskSuperResolution import TaskSuperResolution
+# from AI.Pytorch.superface.superface_gfpgan import SuperFaceGfpgan
+# from AI.Pytorch.superface.upsampler_real_esrgan import RealEsrganUpsampler
+from AI.Pytorch.TaskZeroBackground import TaskZeroBackground
 # from AI.Pytorch.colorize.TaskDeoldify import TaskImageColorizer
 from Helpers import utils
 from UI.FrameWindow import FrameWindow
@@ -35,8 +35,8 @@ class TorchWindow(FrameWindow):
         self.taskImageColorizer = None
         self.threadpool = QThreadPool()
         self.args = (self.threadpool, self.taskDone, self.taskComplete, self.trackTaskProgress)
-        # self.menubar.actionTest1(self.processSuperResolution)
-        self.menubar.actionTest2(self.processSuperface)
+        self.menubar.actionTest1(self.processZeroBackground)
+        self.menubar.actionTest2(self.setCustomBackground)
 
     def preInit(self, message):
         self.progressBar.show()
@@ -76,7 +76,7 @@ class TorchWindow(FrameWindow):
             self.pasteForeground(background)
 
     def pasteForeground(self, background):
-        foreground = self.enhanced_image
+        foreground = self.twinViewer.right.image("RGBA")
         x = (background.size[0] - foreground.size[0]) / 2
         y = (background.size[1] - foreground.size[1]) / 2
         box = (x, y, foreground.size[0] + x, foreground.size[1] + y)
@@ -85,7 +85,7 @@ class TorchWindow(FrameWindow):
         # put the foreground in the centre of the background
         paste_box = (0, final_image.size[1] - foreground.size[1], final_image.size[0], final_image.size[1])
         final_image.paste(foreground, paste_box, mask=foreground)
-        self.twinViewer.displayOutput(final_image)
+        self.twinViewer.left.display(final_image)
 
     def processLowlight(self):
         self.preInit("Light enhancement at:")

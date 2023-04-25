@@ -5,4 +5,5 @@ class Service:
         self.api = api
 
     def resource(self) -> str:
-        return "{0}:{1}/{2}".format(self.address, self.port, self.api)
+        # return "{0}:{1}/{2}".format(self.address, self.port, self.api)
+        return "{0}/{1}".format(self.address, self.api)

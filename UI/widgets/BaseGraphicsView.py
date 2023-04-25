@@ -1,5 +1,6 @@
-import numpy
+import numpy as np
 import PIL.Image
+from PIL import ImageEnhance
 from PySide6.QtCore import QMetaObject, QRect, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QGraphicsView, QGraphicsPixmapItem, QGraphicsScene
@@ -19,6 +20,7 @@ class BaseGraphicsView(QGraphicsView):
         self.pixmapItem = QGraphicsPixmapItem()
         self.scene.addItem(self.pixmapItem)
         self.AspectMode = Qt.AspectRatioMode.KeepAspectRatio
+        self.image_path = None
         QMetaObject.connectSlotsByName(self)
 
     def canvas(self):
@@ -42,10 +44,18 @@ class BaseGraphicsView(QGraphicsView):
         return self.pixmapItem.pixmap().rect()
 
     def display(self, image: any):
+        if isinstance(image, str):
+            self.image_path = image
         pixmap = load_pixmap(image)
         self.pixmapItem.setPixmap(pixmap)
+        self.scene.setSceneRect(self.rect())
         self.setEnabled(True)
         self.redraw()
+
+    def reload(self):
+        pixmap = load_pixmap(self.image_path)
+        self.pixmapItem.setPixmap(pixmap)
+        self.setEnabled(True)
 
     def pixmap(self) -> QPixmap:
         return self.pixmapItem.pixmap()
@@ -57,8 +67,8 @@ class BaseGraphicsView(QGraphicsView):
         else:
             raise TypeError("No image loaded before")
 
-    def ndarray(self) -> numpy.array:
-        return numpy.array(self.image())
+    def ndarray(self) -> np.array:
+        return np.array(self.image())
 
     def bytes(self) -> bytes:
         return image_to_bytes(self.image())
@@ -77,3 +87,7 @@ class BaseGraphicsView(QGraphicsView):
 
     def filter(self, image_filter, args) -> PIL.Image.Image:
         return self.image().filter(image_filter(*args))
+
+    def enhance(self, enhance, factor) -> PIL.Image.Image:
+        enhancer = enhance(self.image())
+        return enhancer.enhance(factor)

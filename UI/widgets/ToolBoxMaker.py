@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QToolBox, QWidget, QSizePolicy, QVBoxLayout, QLayout, QPushButton, QFileDialog
 
+from UI.widgets.Slider import Slider
 from UI.widgets.left_aligin_button import LeftAlignButton
 
 
@@ -52,6 +53,11 @@ class ToolBoxMaker(QToolBox):
         new_layout = layout(self.item(page))
         self.page(page).addLayout(new_layout)
         return new_layout
+
+    def createSlider(self, page, title, row, callback=None):
+        layout = self.createLayout(page, Slider)
+        slider = layout.build(title, row, callback)
+        return slider
 
     def launchDialogOpenFile(self, title="Open Image"):
         return QFileDialog.getOpenFileName(self, title)[0]

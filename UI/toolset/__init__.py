@@ -1,7 +1,14 @@
-# Package methods
-
 import cv2
 import numpy as np
+
+dataX3 = [[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]]
+dataX5 = [[1, 1, 1, 1, 1],
+          [1, 5, 5, 5, 1],
+          [1, 5, 44, 5, 1],
+          [1, 5, 5, 5, 1],
+          [1, 1, 1, 1, 1]]
+
+# Package methods
 
 # Colors for all 20 parts
 part_colors_a = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 0, 85], [255, 0, 170],
@@ -48,3 +55,18 @@ def vis_parsing_maps(image: np.array, parsing_anno, stride=1):
     vis_im = cv2.addWeighted(cv2.cvtColor(vis_im, cv2.COLOR_RGB2BGR), 0.4, vis_parsing_anno_color, 0.6, 0)
 
     return vis_parsing_anno, vis_im
+
+
+def make_transparent_foreground(image: np.ndarray, mask):
+    # split the image into channels
+    b, g, r = cv2.split(image)
+    # add an alpha channel with and fill all with transparent pixels (max 255)
+    a = np.ones(mask.shape, dtype='uint8') * 255
+    # merge the alpha channel back
+    alpha_im = cv2.merge([b, g, r, a], 4)
+    # create a transparent background
+    bg = np.zeros(alpha_im.shape)
+    # set up the new mask
+    new_mask = np.stack([mask, mask, mask, mask], axis=2)
+    # copy only the foreground color pixels from the original image where mask is set
+    return np.where(new_mask, alpha_im, bg).astype(np.uint8)

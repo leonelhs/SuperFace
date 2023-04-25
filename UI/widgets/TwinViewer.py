@@ -3,8 +3,15 @@ from PySide6.QtWidgets import QSplitter
 
 from UI.widgets.ImageView import ImageView
 
-STYLE_SELECT = "QGraphicsView {border: 2px solid #6CC417;}"
+STYLE_SELECT = "QGraphicsView {border: 2px solid #6CC417; background-color:#fff}"
 STYLE_CLEAR = "QGraphicsView {border: 0px}"
+
+STYLE_TRANSPARENT = """
+QGraphicsView {
+background-image: url(assets/chess.png);
+background-repeat: repeat-xy;
+}
+"""
 
 
 class TwinViewer(QSplitter):
@@ -20,8 +27,8 @@ class TwinViewer(QSplitter):
         self.right.setObjectName("right")
         self.addWidget(self.left)
         self.addWidget(self.right)
-        self.left.setStyle(STYLE_SELECT)
-        self.active = self.left
+        self.left.setStyle(STYLE_TRANSPARENT)
+        self.isCollapsed = False
 
     def swapImages(self):
         image_left = self.left.pixmap()
@@ -29,15 +36,13 @@ class TwinViewer(QSplitter):
         self.left.display(image_right)
         self.right.display(image_left)
 
-    def setStyle(self, style):
-        self.setStyleSheet()
+    def collapse(self):
+        if self.isCollapsed:
+            self.right.show()
+            self.isCollapsed = False
+        else:
+            self.right.hide()
+            self.isCollapsed = True
 
     def onClicViewer(self, event, caller):
-        if caller == "right":
-            self.right.setStyle(STYLE_SELECT)
-            self.left.setStyle(STYLE_CLEAR)
-            self.active = self.right
-        else:
-            self.right.setStyle(STYLE_CLEAR)
-            self.left.setStyle(STYLE_SELECT)
-            self.active = self.left
+        pass

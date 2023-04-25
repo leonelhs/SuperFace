@@ -22,7 +22,7 @@ class CSVLogger(LearnerCallback):
 
     def on_train_begin(self, **kwargs: Any) -> None:
         "Prepare file with metric names."
-        self.path.parent.mkdir(parents=True, exist_ok=True)      
+        self.path.main_window.mkdir(parents=True, exist_ok=True)
         self.file = self.path.open('a') if self.append else self.path.open('w')
         self.file.write(','.join(self.learn.recorder.names[:(None if self.add_time else -1)]) + '\n')
     
