@@ -14,10 +14,15 @@ At this point of the development phase it include five features for photo enhanc
 
 - **Clear background**, this feature clear the background of a photo keeping only persons in the photo, also it can put a custom background.
 
-The next development phase will be create and easy way of distribute packaging on an stand alone App.  
+The next development phase will be created and easy way of distribute packaging on an stand-alone App.  
 
 
 ![Screenshot 1](./screenshots/test04.jpg)
 
+AI backend are based on several projects:
+- **Xinntao [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN)**
+- **Ai-forever [Upsampler](https://github.com/ai-forever/Real-ESRGAN)**
+- **Eugenesiow [Remove background](https://github.com/eugenesiow/practical-ml/blob/master/notebooks/Remove_Image_Background_DeepLabV3.ipynb)**
+- **Li-Chongyi [Low-Light enhancement](https://github.com/Li-Chongyi/Zero-DCE)**
 
 
