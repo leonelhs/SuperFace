@@ -10,7 +10,7 @@ from PySide6.QtGui import QPixmap
 
 
 def read_config():
-    data = open('conf.json')
+    data = open('conf_local.json')
     return json.load(data)
 
 

@@ -1,8 +1,7 @@
 import utils
-from UI.widgets.button_plus_check import ButtonPlusCheck
-from remotetasks.remote_task import RemoteTask
 from UI.toolset import make_transparent_foreground
 from UI.toolset.Toolset import Toolset
+from UI.widgets.button_plus_check import ButtonPlusCheck
 from utils import uint8
 
 
